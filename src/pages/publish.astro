@@ -1,0 +1,152 @@
+---
+import Form from "../components/Form.astro";
+import Layout from "../layouts/Layout.astro";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+if (!loggedIn) {
+	return Astro.redirect("/");
+}
+---
+
+<Layout title="galaxy - publish" user={{ user, loggedIn, needsVerification }}>
+	<main id="main">
+		<h1>post your game</h1>
+
+		<div id="userid">{user.id}</div>
+
+		<!-- TODO more client side form validation -->
+		<div id="publish" data-action="/api/games/new">
+			<Form>
+				<div>
+					<p>
+						You need to upload your game somewhere else to begin.
+						Don't know where? Try <a
+							href="https://pages.github.com/">GitHub Pages</a
+						>.
+						<br />
+						You should be able to
+						<a
+							href="https://iframetester.com/"
+							target="_blank"
+							rel="noopener noreferrer"
+							>put your game in an iframe</a
+						>. Otherwise, it won't work on Galaxy.
+						<br />
+						If you want, you can add more information, such as tags,
+						after you upload.
+						<br />
+						<b>
+							You can only upload games that you are the main
+							developer of. Uploading someone else's game is a
+							bannable offense!
+						</b>
+						<br />
+						Consider reading the <a
+							href="/rules#guidelines-for-posting-games"
+							>short developer guidelines</a
+						> before posting your game.
+					</p>
+				</div>
+				<div data-label="game name">
+					<input
+						type="text"
+						name="name"
+						placeholder="(required)"
+						required
+					/>
+				</div>
+				<div data-label="game link">
+					<input
+						type="url"
+						name="link"
+						placeholder="(required)"
+						required
+					/>
+				</div>
+				<!-- TODO: add character counter/max length -->
+				<div data-label="game description">
+					<textarea
+						class="desc"
+						name="description"
+						placeholder="(required, supports markdown)"
+						required></textarea>
+				</div>
+				<hr />
+				<div data-label="validity">
+					<input type="checkbox" name="owner" />
+					<label for="owner">
+						I am the owner / main developer of this game
+					</label>
+				</div>
+				<hr />
+				<div data-label="let's go">
+					<button id="enter-button" type="submit" role="button"
+						>publish game
+					</button>
+				</div>
+				<div>
+					<p>
+						Your game will not be playable until it is verified by
+						our staff. Game verification can take up to a day, but
+						it usually takes less time.
+					</p>
+				</div>
+			</Form>
+		</div>
+	</main>
+</Layout>
+<script>
+	import { alert, form } from "../libgalaxy";
+
+	// This script is fucked up bruh
+	document.querySelector<HTMLInputElement>("[name='owner']").checked = false;
+
+	form("publish", ["name", "link", "description", "owner"], res => {
+		if (res.id) {
+			alert.success("Game published!");
+
+			window.location.pathname = `/edit/${res.id}`;
+		}
+	});
+
+	// @ts-ignore
+	window.copyCode = () => {
+		const userId = document.getElementById("userid").textContent;
+		const code =
+			// Astro freaks out if this isn't split
+			"<" +
+			`script>window.top.postMessage({action:"verify",author:${userId}},"https://galaxy.click")</` +
+			"script>";
+		try {
+			window.navigator.clipboard
+				.writeText(code)
+				.catch(() =>
+					prompt(
+						"We couldn't automatically copy the code. Here it is:",
+						code
+					)
+				);
+		} catch (e) {
+			prompt(
+				"We couldn't automatically copy the code. Here it is:",
+				code
+			);
+		}
+	};
+</script>
+
+<style>
+	.desc {
+		width: min(500px, 100%);
+		height: 150px;
+	}
+
+	#userid {
+		display: none;
+	}
+
+	textarea {
+		margin-top: 4px;
+	}
+</style>

@@ -1,0 +1,248 @@
+---
+import { getLevel, getXP, getXPToNextLevel } from "../helper/leveling";
+import Layout from "../layouts/Layout.astro";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+if (!loggedIn && !needsVerification) return Astro.redirect("/");
+
+const xp = getXP(user);
+const level = getLevel(xp);
+const xpToCurrent = getXPToNextLevel(level - 1);
+const xpToNext = getXPToNextLevel(level);
+---
+
+<Layout title="galaxy - level hub" user={{ user, loggedIn, needsVerification }}>
+	<main id="main">
+		<h1 id="level">
+			<span class="small-screen">your</span>
+			level
+			<span class="small-screen">is</span>
+			<div>{level.toLocaleString("en-US")}</div>
+		</h1>
+		<div
+			id="big-xp-bar"
+			style={`--progress: ${
+				((xp - xpToCurrent) / (xpToNext - xpToCurrent)) * 100
+			}%`}
+		>
+			<span>
+				<span id="big-xp-progress"
+					>{(xp - xpToCurrent).toLocaleString("en-US")} / {
+						(xpToNext - xpToCurrent).toLocaleString("en-US")
+					}</span
+				>
+				xp
+				<span class="small-screen">to next level</span>
+			</span>
+		</div>
+		<h1 id="xp">
+			<div>{xp.toLocaleString("en-US")}</div>
+			<span class="small-screen">lifetime</span>
+			total xp
+		</h1>
+
+		<div class="container">
+			<div id="quest-details">
+				<div>
+					<h2>breakdown table</h2><hr />
+					<table id="breakdown-table">
+						<tbody>
+							<tr>
+								<td>from playtime</td>
+								<td
+									>{user.playMinutes.toLocaleString("en-US")} xp</td
+								>
+							</tr>
+							<tr>
+								<td>total</td>
+								<td>{xp.toLocaleString("en-US")} xp</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div>
+					<h2>level rewards</h2><hr />
+					<span class="unimportant">coming soon, maybe...?</span>
+				</div>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<script define:vars={{ xp }}>
+	function getXPToNextLevel(level) {
+		return 80 * level + 20 * level * level;
+	}
+
+	function getLevel(totalXP) {
+		return Math.floor((-80 + Math.sqrt(6400 + 80 * totalXP)) / 40) + 1;
+	}
+
+	const levelHolder = document.querySelector("#level > div");
+	const xpHolder = document.querySelector("#xp > div");
+	const xpBarHolder = document.querySelector("#big-xp-bar");
+	const xpProgressHolder = document.querySelector("#big-xp-progress");
+
+	let time = 0;
+	let start;
+
+	const lastLevel = 1;
+
+	function animator(timestamp) {
+		const delta = timestamp - start || 0;
+		start = timestamp;
+
+		time = Math.min(time + delta / 5000, 1);
+
+		const xpLerp = xp - xp ** (1 - time ** 2) * (1 - time);
+		const level = getLevel(xpLerp);
+		const xpToCurrent = getXPToNextLevel(level - 1);
+		const xpToNext = getXPToNextLevel(level);
+
+		levelHolder.innerHTML = level.toLocaleString("en-US");
+		xpHolder.innerHTML = Math.floor(xpLerp).toLocaleString("en-US");
+		xpBarHolder.style.setProperty(
+			"--progress",
+			((xpLerp - xpToCurrent) / (xpToNext - xpToCurrent)) * 100 + "%"
+		);
+		xpProgressHolder.innerText =
+			(Math.floor(xpLerp) - xpToCurrent).toLocaleString("en-US") +
+			" / " +
+			(xpToNext - xpToCurrent).toLocaleString("en-US");
+
+		if (time < 1) {
+			requestAnimationFrame(animator);
+		} else {
+			xpHolder.classList.add("flash");
+			document.body.removeEventListener("pointerdown", animatorSkip);
+		}
+	}
+
+	function animatorSkip() {
+		time = 1;
+	}
+
+	requestAnimationFrame(animator);
+	document.body.addEventListener("pointerdown", animatorSkip);
+</script>
+<style>
+	#level {
+		text-align: center;
+		margin: max(calc(50vh - 300px), 0px) 0 20px 0;
+	}
+	#level > div {
+		font-size: 64px;
+		line-height: 64px;
+		font-family: var(--content-font);
+		letter-spacing: -0.05em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	#xp {
+		text-align: center;
+		margin: 15px 0 35px 0;
+	}
+	#xp > div {
+		font-size: 96px;
+		line-height: 96px;
+		font-family: var(--content-font);
+		font-weight: 200;
+		letter-spacing: -0.08em;
+		font-variant-numeric: tabular-nums;
+	}
+	#xp > div.flash {
+		animation: xp-flash 2s linear;
+	}
+
+	@keyframes xp-flash {
+		from {
+			text-shadow:
+				0 0 8px currentColor,
+				0 0 8px currentColor;
+		}
+		to {
+			text-shadow:
+				0 0 8px transparent,
+				0 0 8px transparent;
+		}
+	}
+
+	#big-xp-bar {
+		position: relative;
+		height: 24px;
+		line-height: 24px;
+		margin-bottom: 20px;
+		border-radius: 12px;
+		text-align: center;
+		background: var(--background-2);
+		box-shadow: 0 0 10px black;
+		overflow: hidden;
+	}
+	#big-xp-bar::before {
+		content: "";
+		position: absolute;
+		display: block;
+		left: 0;
+		width: var(--progress);
+		max-width: 100%;
+		top: 0;
+		bottom: 0;
+		border-radius: 12px;
+		background: repeating-linear-gradient(
+			-45deg,
+			var(--background-active-6) 0 10px,
+			var(--background-active-5) 10px 20px
+		);
+		background-size: 28px 100%;
+		animation: repeating-xp-animation 2s linear infinite;
+	}
+
+	@keyframes repeating-xp-animation {
+		from {
+			background-position: 0 0;
+		}
+		to {
+			background-position: -28px 0;
+		}
+	}
+
+	#big-xp-bar > span {
+		position: relative;
+	}
+
+	#quest-details {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+		margin-bottom: 12px;
+		align-content: center;
+		gap: 10px;
+	}
+	#quest-details > div > h2:first-child {
+		margin-bottom: 0;
+	}
+
+	#breakdown-table {
+		width: 100%;
+		gap: 0px;
+	}
+	#breakdown-table tr:nth-last-child(2) td {
+		padding-bottom: 4px;
+	}
+	#breakdown-table tr:last-child td {
+		border-top: 1px solid var(--color-0);
+		padding-top: 4px;
+	}
+	#breakdown-table td:last-child {
+		text-align: right;
+	}
+
+	@media screen and (max-width: 500px) {
+		.small-screen {
+			display: none;
+		}
+		#xp > div {
+			font-size: 72px;
+			line-height: 72px;
+		}
+	}
+</style>

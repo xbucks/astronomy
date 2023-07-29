@@ -1,0 +1,30 @@
+---
+import ErrorResponse from "../components/ErrorResponse.astro";
+import Layout from "../layouts/Layout.astro";
+
+const errorList = [
+	"not found",
+	"it's empty",
+	"welcome to nothingness",
+	"this page doesn't exist",
+	"looks like we're lost",
+	"you shouldn't be here",
+	"this is a dead end",
+	"huh?",
+	"undefined",
+	"",
+	"[object Object]",
+];
+
+Astro.response.status = 404;
+---
+
+<Layout title="galaxy - not found">
+	<main id="main">
+		<ErrorResponse status={404} title={errorList}>
+			<p>seems like there isn't anything here</p>
+		</ErrorResponse>
+	</main>
+</Layout>
+
+<style></style>

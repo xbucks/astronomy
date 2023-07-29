@@ -1,0 +1,10 @@
+# generated
+/.output
+/dist
+/dist-router
+/pnpm-lock.yaml
+
+# preserve formatting
+*.md
+/config
+/grant

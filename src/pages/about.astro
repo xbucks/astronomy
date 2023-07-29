@@ -1,0 +1,219 @@
+---
+import AboutPageBlurb from "../components/AboutPageBlurb.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="galaxy - about">
+	<main>
+		<AboutPageBlurb gradient={[280, 315]} title="galaxy" index={0}>
+			<p>
+				is a free and open source website for finding and playing
+				incremental games, although not exclusively.
+				<br /><br />
+				it has no forced ads, no trackers, no paywalls, and it never will.
+				<br /><br />
+				<a href="/" class="button">start playing games</a>
+				<a href="/signup" class="button">sign up</a>
+			</p>
+		</AboutPageBlurb>
+		<AboutPageBlurb gradient={[180, 215]} title="features" index={1}>
+			<p>
+				<span class="major-features">
+					game rating &bull; favorite games &bull; live chat rooms
+					&bull; comments &bull; cloud saving api &bull; level system
+				</span>
+				<span class="features">
+					&bull; game tagging &bull; searching &bull; user flairs
+					&bull; playtime tracking &bull; private messages &bull;
+					developer documentation
+				</span>
+				<span class="minor-features">
+					&bull; game updates &bull; galaxy cluster (WIP) &bull;
+					random game picking
+				</span>
+				<br /><br />
+				<i>
+					coming soon: forums, user following, blocking, unlisted
+					games, game analytics, playlists, achievements, play counts,
+					and more...
+				</i>
+			</p>
+		</AboutPageBlurb>
+		<AboutPageBlurb gradient={[100, 115]} title="chat rooms" index={2}>
+			<p>
+				if you're a game developer, you can add a live chat window next
+				to your game on galaxy. you get to choose your own rules and
+				moderators.
+				<br /><br />
+				if you're a player, you can switch chat rooms, even if it's not the
+				one for the game you're playing.
+			</p>
+		</AboutPageBlurb>
+		<AboutPageBlurb gradient={[40, 50]} title="developers" index={3}>
+			<p>
+				when you post your game on galaxy, you reserve the right to do <b
+					>whatever else</b
+				> you want to do with it.<br />
+				get more exposure, feedback, and fans. you don't get any money, but
+				we don't either.
+				<br /><br />
+				you can also (100% optionally) add cloud saving to your game, for
+				free, using our API. it's easy!
+				<br /><br />
+				it takes 30 seconds to post your games on galaxy, and you never need
+				to touch them again. you're missing out by not doing it.
+				<br /><br />
+				<a href="/signup" class="button">sign up</a>
+				<a href="/publish" class="button">publish</a>
+				<a href="/docs" class="button">read the docs</a>
+			</p>
+		</AboutPageBlurb>
+		<AboutPageBlurb gradient={[350, 0]} title="" index={4}>
+			<div id="pulsing-heart">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="150"
+					height="150"
+					viewBox="0 0 24 24"
+					><path
+						fill="currentColor"
+						d="m12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"
+					></path></svg
+				>
+			</div>
+			<p style="text-align: center">
+				galaxy is made possible by the community.<br />thank you all.
+				<br /><br />
+			</p>
+			<p>
+				<h2>code contributors</h2>
+				<ul>
+					<li>yhvr</li>
+					<li>ducdat0507</li>
+					<li>wackbyte</li>
+					<li>yahtzee</li>
+					<li>circle-gon</li>
+				</ul>
+				<h2>donators</h2>
+				<ul>
+					<li>Rythie</li>
+					<li>Dragomura</li>
+					<li>ThePaperPilot</li>
+					<li>milo</li>
+					<li>toasty</li>
+					<li>Piterpicher</li>
+					<li>abaileyatd</li>
+					<li>dysiode</li>
+					<li>sir_pinski</li>
+					<li>wackbyte</li>
+					<li>vvc</li>
+				</ul>
+				<h2>testers</h2>
+				<ul>
+					<li>ThePaperPilot</li>
+					<li>Pighouse</li>
+					<li>Flamemaster</li>
+					<li>downvoid</li>
+					<li>probably some other people i forgot</li>
+				</ul>
+				<h2>other help</h2>
+				<ul>
+					<li>smileyrandom</li>
+					<li>Crimson406</li>
+					<li>Everyone else on my Discord server</li>
+					<li>Grant Gryczan</li>
+					<li>robodove</li>
+				</ul>
+				<h2>special thanks</h2>
+				<ul>
+					<li>Kongregate (I still hate y'all though)</li>
+					<li>r/incremental_games</li>
+				</ul>
+				<p>
+					<a
+						href="https://gitlab.com/yhvr/galaxy-astro"
+						class="button">source code</a
+					>
+					<a href="/discord" class="button">join us on discord</a>
+					<a href="https://patreon.com/Yhvr" class="button"
+						>donate on patreon</a
+					>
+				</p>
+			</p>
+		</AboutPageBlurb>
+	</main>
+</Layout>
+<style>
+	h1 {
+		font-size: 75px;
+	}
+
+	/* main#main {
+		max-width: 800px;
+		width: 50vw;
+		margin-left: calc((100vw - min(50vw, 800px)) / 2);
+	} */
+
+	main > p,
+	main > ul,
+	main > h2 {
+		max-width: 800px;
+		margin: 25px auto;
+		position: relative;
+		z-index: 2;
+	}
+
+	body {
+		margin-top: -58px;
+	}
+
+	.major-features {
+		font-size: 24px;
+	}
+
+	.features {
+		font-size: 18px;
+		color: var(--color-2);
+	}
+
+	.minor-features {
+		font-size: 12px;
+		color: var(--color-3);
+	}
+
+	#pulsing-heart {
+		padding-top: 20px;
+		font-size: 100px;
+		text-align: center;
+		color: #fff;
+		animation: pulse 3s ease-out infinite;
+	}
+
+	@keyframes pulse {
+		from {
+			filter: drop-shadow(0 0 0 #fff0) drop-shadow(0 0 0 #fff0)
+				drop-shadow(0 0 0 #fff0) drop-shadow(0 0 0 #fff0)
+				drop-shadow(0 0 0 #fff0) drop-shadow(0 0 0 #fff0)
+				drop-shadow(0 0 0 #fff0) drop-shadow(0 0 0 #fff0);
+			scale: 1;
+		}
+
+		50% {
+			filter: drop-shadow(1px 1px 2px #fff7)
+				drop-shadow(-1px -1px 2px #fff7) drop-shadow(1px -1px 2px #fff7)
+				drop-shadow(-1px 1px 2px #fff7) drop-shadow(1px 0 2px #fff7)
+				drop-shadow(-1px 0 2px #fff7) drop-shadow(0 1px 2px #fff7)
+				drop-shadow(0 -1px 2px #fff7);
+			scale: 1;
+		}
+
+		to {
+			filter: drop-shadow(2px 2px 4px #fff0)
+				drop-shadow(-2px -2px 4px #fff0) drop-shadow(2px -2px 4px #fff0)
+				drop-shadow(-2px 2px 4px #fff0) drop-shadow(2px 0 4px #fff0)
+				drop-shadow(-2px 0 4px #fff0) drop-shadow(0 2px 4px #fff0)
+				drop-shadow(0 -2px 4px #fff0);
+			scale: 1;
+		}
+	}
+</style>

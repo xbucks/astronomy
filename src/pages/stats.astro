@@ -1,0 +1,84 @@
+---
+import Layout from "../layouts/Layout.astro";
+import StatGridEntry from "../components/StatGridEntry.astro";
+import { getAllTags } from "../helper/tags";
+
+import { Channel } from "../models/channel";
+import { ChatMessage } from "../models/chatmessage";
+import { Comment } from "../models/comment";
+import { Favorite } from "../models/favorite";
+import { Game } from "../models/game";
+import { GameSave } from "../models/gamesave";
+import { Message } from "../models/message";
+import { Playtime } from "../models/playtime";
+import { Rating } from "../models/rating";
+import { Update } from "../models/update";
+import { User } from "../models/user";
+
+const games = await Game.countDocuments({ verified: true });
+const users = await User.countDocuments({ banned: false });
+const activeUsers = await User.countDocuments({
+	lastHeartbeat: { $gte: Date.now() - 65000 },
+});
+const comments = await Comment.countDocuments({ deleted: false });
+const ratings = await Rating.estimatedDocumentCount();
+const updates = await Update.estimatedDocumentCount();
+const faves = await Favorite.estimatedDocumentCount();
+const pms = await Message.countDocuments({ deleted: false });
+const messages = await ChatMessage.countDocuments({ deleted: false });
+const channels = await Channel.estimatedDocumentCount();
+const saves = await GameSave.estimatedDocumentCount();
+const minutes = await Playtime.aggregate([
+	{
+		$group: {
+			_id: 1,
+			sum: { $sum: "$minutes" },
+		},
+	},
+]);
+---
+
+<Layout title="galaxy - statistics">
+	<main id="main">
+		<h1>this is galaxy.</h1>
+		<div id="grid">
+			<StatGridEntry stat={games} desc="games" />
+			<StatGridEntry stat={users} desc="users" />
+			<StatGridEntry stat={comments} desc="comments" />
+			<StatGridEntry
+				stat={Math.floor(minutes[0].sum / 60)}
+				desc="play-hours"
+			/>
+		</div>
+		<h2>anything else?</h2>
+		<p>
+			{activeUsers.toLocaleString()} active users &bull;
+			{updates.toLocaleString()} updates &bull;
+			{faves.toLocaleString()} favorites &bull;
+			{messages.toLocaleString()} chat messages &bull;
+			{pms.toLocaleString()} private messages &bull;
+			{getAllTags().length.toLocaleString()} official tags &bull;
+			{channels.toLocaleString()} channels &bull;
+			{saves.toLocaleString()} cloud saves &bull;
+			{ratings.toLocaleString()} ratings &bull; zero forced ads, ever
+		</p>
+	</main>
+</Layout>
+
+<style>
+	#grid {
+		display: grid;
+		grid-template: 230px 230px / repeat(
+				2,
+				minmax(calc(50vw - 140px), 400px)
+			);
+		gap: 10px 10px;
+		grid-auto-flow: row;
+	}
+
+	@media screen and (max-width: 600px) {
+		#grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

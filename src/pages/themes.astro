@@ -1,0 +1,335 @@
+---
+import Form from "../components/Form.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="galaxy - themes">
+	<main id="main">
+		<h1>theme picker</h1>
+		<Form>
+			<hr />
+			<div style="color: var(--color-active-1)" data-label="accent color">
+				<div id="accent">
+					<button id="accent-random">pick random</button>
+					<input
+						id="accent-input"
+						type="range"
+						step="1"
+						value={Astro.cookies.get("t-accent").value ?? 290}
+						max="360"
+					/>
+				</div>
+			</div>
+			<hr />
+			<div data-label="theme mode">
+				<div class="theme-picker">
+					<div>
+						<button
+							id="theme-mode-auto"
+							onclick="setThemeMode('auto', this)"
+							>auto detect</button
+						>
+					</div>
+					<div>
+						<button
+							id="theme-mode-dark"
+							onclick="setThemeMode('dark', this)"
+							>always dark</button
+						>
+					</div>
+					<div>
+						<button
+							id="theme-mode-light"
+							onclick="setThemeMode('light', this)"
+							>always light</button
+						>
+					</div>
+				</div>
+			</div>
+			<hr />
+			<div data-label="themes">
+				<div class="theme-picker">
+					<div id="theme"></div>
+					<div id="t-dark"></div>
+					<div id="t-light"></div>
+				</div>
+			</div>
+			<hr />
+			<div>
+				<button id="save" onclick="saveSettings()">save settings</button
+				>
+			</div>
+			<div>
+				<p class="unimportant">
+					Note: By confirming and saving the settings you accept the
+					use of cookies to store your preferences.
+				</p>
+			</div>
+		</Form>
+	</main>
+</Layout>
+
+<script>
+	const cookies = Object.fromEntries(
+		document.cookie.split("; ").map(x => x.split("="))
+	);
+	const accentDiv = document.getElementById("accent");
+
+	if (!cookies["t-accent"]) accentDiv.classList.add("random");
+	document.getElementById("accent-random").addEventListener("click", e => {
+		cookies["t-accent"] = "";
+		accentDiv.classList.add("random");
+	});
+
+	document.getElementById("accent-input").addEventListener("input", e => {
+		// console.log(e.target.value
+		// @ts-ignore
+		const hue: number = e.target.value;
+		cookies["t-accent"] = hue;
+		document.documentElement.style.setProperty("--accent-hue", hue + "deg");
+		accentDiv.classList.remove("random");
+	});
+
+	const selectedButtons = {};
+
+	const currentMode = cookies["theme"] || "auto";
+	for (const mode of ["auto", "dark", "light"]) {
+		const button = document.getElementById(
+			"theme-mode-" + mode
+		) as HTMLButtonElement;
+		if (currentMode == mode) {
+			selectedButtons["theme"] = button;
+			button.disabled = true;
+		}
+	}
+
+	// @ts-expect-error
+	document.setThemeMode = function (mode: string, button: HTMLButtonElement) {
+		cookies.theme = mode;
+		if (selectedButtons["theme"]) selectedButtons["theme"].disabled = false;
+		selectedButtons["theme"] = button;
+		button.disabled = true;
+	};
+
+	const presets = ["default", "accented"];
+
+	const categories = {
+		"t-dark": ["galaxy", "chalkboard"],
+		"t-light": ["milk", "pastel"],
+	};
+
+	const categoryButtons = { presets: [] };
+
+	const holder = document.getElementById("theme");
+	for (const p in presets) {
+		const button = document.createElement("button");
+
+		button.addEventListener("click", e => {
+			for (const c in categories) {
+				cookies[c] = categories[c][p];
+				if (selectedButtons[c]) selectedButtons[c].disabled = false;
+				categoryButtons[c][p].disabled = true;
+				selectedButtons[c] = categoryButtons[c][p];
+			}
+			if (selectedButtons["preset"])
+				selectedButtons["preset"].disabled = false;
+			button.disabled = true;
+			selectedButtons["preset"] = button;
+		});
+
+		button.classList.add("theme-button");
+
+		button.append(document.createElement("div"));
+		button.append(presets[p]);
+
+		holder.append(button);
+
+		categoryButtons.presets.push(button);
+	}
+
+	for (const c in categories) {
+		const current = cookies[c] || categories[c][0];
+		const holder = document.getElementById(c);
+		categoryButtons[c] = [];
+		for (const theme of categories[c]) {
+			const button = document.createElement("button");
+			if (current == theme) {
+				selectedButtons[c] = button;
+				button.disabled = true;
+			}
+
+			button.addEventListener("click", e => {
+				cookies[c] = theme;
+				if (selectedButtons[c]) selectedButtons[c].disabled = false;
+				button.disabled = true;
+				selectedButtons[c] = button;
+
+				if (selectedButtons["preset"])
+					selectedButtons["preset"].disabled = false;
+			});
+
+			const iframe = document.createElement("iframe");
+			iframe.src = "/theme-preview?t=" + theme;
+
+			button.append(iframe);
+			button.classList.add("theme-button");
+
+			button.append(theme);
+
+			holder.append(button);
+
+			categoryButtons[c].push(button);
+		}
+	}
+
+	// @ts-expect-error
+	document.saveSettings = function () {
+		for (const cookie in cookies)
+			document.cookie = `${cookie}=${cookies[cookie]}; Path=/; Max-Age=${
+				cookies[cookie] ? 2147483647 : 0
+			};`;
+		document.location.reload();
+	};
+</script>
+
+<style>
+	#theme-grid {
+		display: grid;
+		grid-template: repeat(2, 1fr) / repeat(2, 1fr);
+	}
+
+	:global(.theme-button:disabled, .theme-button:disabled:hover),
+	#accent.random > #accent-random,
+	.theme-picker button:disabled {
+		color: var(--color-active-0);
+		background: var(--background-active-0);
+		text-decoration: none;
+		box-shadow: inset 1px 0 5px #0007;
+		cursor: default;
+		transition: none;
+	}
+
+	#accent {
+		display: flex;
+		gap: 4px;
+		width: 100%;
+	}
+
+	#accent-random {
+		flex: 0 0 fit-content;
+	}
+
+	#accent-input {
+		appearance: none;
+		width: calc(100% - 20px);
+
+		height: 16px;
+		margin: 3px 0 0 0;
+		padding: 4px;
+		background: transparent;
+	}
+
+	#accent-input::-webkit-slider-runnable-track {
+		appearance: none;
+
+		height: 16px;
+		border-radius: 8px;
+
+		background: linear-gradient(
+			90deg,
+			hsl(0, 100%, 50%),
+			hsl(60, 100%, 50%),
+			hsl(120, 100%, 50%),
+			hsl(180, 100%, 50%),
+			hsl(240, 100%, 50%),
+			hsl(300, 100%, 50%),
+			hsl(360, 100%, 50%)
+		);
+		box-shadow: inset 0px 2px 4px #0007;
+	}
+
+	#accent-input::-moz-range-track {
+		appearance: none;
+
+		height: 16px;
+		border-radius: 8px;
+
+		background: linear-gradient(
+			90deg,
+			hsl(0, 100%, 50%),
+			hsl(60, 100%, 50%),
+			hsl(120, 100%, 50%),
+			hsl(180, 100%, 50%),
+			hsl(240, 100%, 50%),
+			hsl(300, 100%, 50%),
+			hsl(360, 100%, 50%)
+		);
+		box-shadow: inset 0px 2px 4px #0007;
+	}
+
+	#accent-input::-webkit-slider-thumb {
+		appearance: none;
+		width: 16px;
+		height: 16px;
+		border: 1px solid var(--color-active-1);
+		outline: 4px solid var(--background-6);
+		border-radius: 100px;
+		background: rgba(255, 255, 255, 0.5);
+		filter: drop-shadow(0px 0px 4px #0007);
+	}
+
+	#accent-input::-moz-range-thumb {
+		appearance: none;
+		width: 16px;
+		height: 16px;
+		border: 1px solid var(--color-active-1);
+		outline: 4px solid var(--background-6);
+		border-radius: 100px;
+		background: rgba(255, 255, 255, 0.5);
+		filter: drop-shadow(0px 0px 4px #0007);
+	}
+
+	#accent.random #accent-input::-webkit-slider-thumb {
+		opacity: 0.5;
+	}
+	#accent.random #accent-input::-moz-range-thumb {
+		opacity: 0.5;
+	}
+
+	.theme-picker {
+		display: flex;
+		flex-direction: row;
+		gap: 4px;
+		padding-top: 2px;
+		width: 100%;
+	}
+
+	.theme-picker > div {
+		display: flex;
+		flex-direction: column;
+		flex: 0 1 208px;
+		gap: 4px;
+	}
+
+	.theme-picker > div > span {
+		height: 16px;
+		line-height: 30px;
+	}
+	.theme-picker > div > :global(button) {
+		margin: 0;
+	}
+
+	:global(.theme-button) {
+		height: auto;
+		display: block;
+	}
+	:global(.theme-button iframe, .theme-button div) {
+		width: calc(100% + 16px);
+		aspect-ratio: 4 / 3;
+		margin: 4px -8px 0px -8px;
+		border-radius: 3px 3px 0 0;
+		pointer-events: none;
+		border: none;
+		display: block;
+	}
+</style>

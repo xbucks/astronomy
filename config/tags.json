@@ -1,0 +1,72 @@
+{
+	"made using": {
+		"flash":                "{0} is made using Adobe Flash/Animate (and requires Flash Player or third-party simulators to play).",
+		"tmt":                  "{0} is made using The Modding Tree/Profectus.",
+		"js":                   "{0} is made using JavaScript/CSS/HTML.",
+		"unity":                "{0} is made using Unity.",
+		"godot":                "{0} is made using Godot.",
+		"scratch":              "{0} is made using Scratch.",
+		"webasm":               "{0} is compiled to the browser using WebAssembly (most likely using a dedicated game engine)."
+	},
+
+	"pacing": {
+		"idle":                 "{0} is slow-paced and is intended to be played while doing other things.",
+		"active":               "{0} is fast-paced and frequently introduces new mechanics."
+	},
+
+	"features": {
+		"prestige":             "{0} features mechanics that involve resetting for a bonus.",
+		"story":                "{0} features a story that the game revolves around.",
+		"procedural":           "{0} features procedurally generated content.",
+		"strategy":             "{0} requires the player to make strategical preparations for possible events that may happen.",
+		"resource-management":  "{0} requires the player to manage several different resources.",
+		"micro-management":     "{0} requires a lot of frequent interaction in all parts of the game.",
+		"automation":           "{0} lets a significant portion of the game be automated.",
+		"polynomial":           "{0} features polynomial growth (items that produce items that produce items that produce items etc...).",
+		"googology":            "{0} features astronomically large numbers and/or is themed around astronomically large numbers.",
+		"loops":                "{0} features gameplay similar to that found in the game Idle Loops.",
+		"clicker":              "{0} features one or more elements that is intended to be repeatedly clicked on."
+	},
+
+	"length": {
+		"hours":                "{0} can be beaten in a short amount of time (less than a day).",
+		"days":                 "{0} takes a moderate amount of time to beat (a day to a week).",
+		"weeks":                "{0} requires the player to play it for a long time to be beaten (a week to a month).",
+		"long-term":            "{0} is a long-term commitment to play to completion (over a month).",
+		"infinite":             "{0} is balanced in such a way that it can be played forever."
+	},
+
+	"graphics": {
+		"text-based":           "{0} is mainly text and has little to no images.",
+		"2d":                   "{0} has 2-dimensional graphics or takes place in a 2-dimensional world.",
+		"2.5d":                 "{0} has 2.5-dimensional graphics or takes place in a 2.5-dimensional world.",
+		"3d":                   "{0} has 3-dimensional graphics or takes place in a 3-dimensional world."
+	},
+
+	"player count": {
+		"zero-player":          "{0} does not require any input to be played.",
+		"single-player":        "{0} is played alone.",
+		"multi-player":         "{0} can be played by multiple people or has other online functionality."
+	},
+
+	"status": {
+		"beta":                 "{0} is in a testing phase, and may be buggy or incomplete.",
+		"in-development":       "{0} is actively being updated and contents are frequently being added.",
+		"on-hiatus":            "{0} is not being updated now, but development might resume in the future.",
+		"abandoned":            "{0} is not being updated, and will likely never be.",
+		"complete":             "{0} is completed in terms of content and will not receive anymore major updates."
+	},
+
+	"other": {
+		"mod":                  "{0} is a modification of another existing game.",
+		"open-source":          "{0} has source code that can be viewed and edited by anybody.",
+		"mobile-friendly":      "{0} is designed to work well on mobile devices.",
+		"cloud-saving":         "{0} saves your progress in galaxy's cloud automatically.",
+		"game-jam":             "{0} was made as part of a game jam or a game development competition."
+	},
+
+	"?????????": {
+		"cursed":               "?????????????????????",
+		"non-incremental":      "{0} isn't an incremental game."
+	}
+}

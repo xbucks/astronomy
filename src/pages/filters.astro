@@ -1,0 +1,29 @@
+---
+import { getTagCategories, getTagData } from "../helper/tags";
+import Form from "../components/Form.astro";
+import Layout from "../layouts/Layout.astro";
+import SiteFilters from "../components/SiteFilters.svelte";
+import { getFilters } from "../helper/filters";
+
+const { neg, pos } = getFilters(Astro.cookies.get("filters").value);
+---
+
+<Layout title="galaxy - game filters">
+	<main id="main">
+		<h1>site-wide filters</h1>
+		<p>
+			You won't see games with any tag in the "excluded tags" list, and
+			you will only see games with all tags in the "required tags" list.
+			Filters don't apply on user pages, and can be toggled in search.
+		</p>
+		<Form>
+			<SiteFilters
+				categories={getTagCategories()}
+				tagData={getTagData()}
+				negTags={neg}
+				posTags={pos}
+				client:only
+			/>
+		</Form>
+	</main>
+</Layout>

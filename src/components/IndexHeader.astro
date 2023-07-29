@@ -1,0 +1,391 @@
+---
+export interface Props {
+	loggedIn: boolean;
+}
+
+const { loggedIn } = Astro.props;
+
+const messages = [
+	"the website for incremental games",
+	"drop kongregate, use galaxy",
+	"welcome to galaxy",
+	"a home for numbers going up",
+	"(*・ω・)ﾉ",
+];
+
+const message = messages[Math.floor(Math.random() * messages.length)];
+---
+
+<div id="header-image" aria-hidden="true">
+	<div>You have <span id="useless-points">0</span> points.</div>
+</div>
+<div id="header-wrapper">
+	{
+		!loggedIn && (
+			<div class="header-page">
+				<h3>{message}</h3>
+				<p>
+					galaxy.click is an open-source website for finding
+					incremental games, socializing with others, and having fun.
+				</p>
+				<div class="buttons">
+					<a href="/about" class="button">
+						about
+					</a>
+					<a href="/signup" class="button">
+						sign up
+					</a>
+					<a href="/rules" class="button">
+						site rules
+					</a>
+				</div>
+			</div>
+		)
+	}
+	<!-- <div class="header-page">
+		<h5>website update</h5>
+		<h3>game requests</h3>
+		<p>
+			want to see your favorite game on galaxy? now you can!<br />
+			note: results may vary. not all developers may be contactable or will
+			want to put their games on the site.
+		</p>
+		<div class="buttons">
+			<a href="/request" class="button">request a game</a>
+		</div>
+	</div> -->
+	<div class="header-page">
+		<h5>website update</h5>
+		<h3>playtime tracking</h3>
+		<p>
+			if you have an account, you can now see how long you've played each
+			game for!<br />
+			you can also see the first and last time you played a game.
+		</p>
+		<div class="buttons">
+			{
+				loggedIn ? (
+					<a href="/playtime" class="button">
+						view playtimes
+					</a>
+				) : (
+					<a href="/signup" class="button">
+						sign up
+					</a>
+				)
+			}
+		</div>
+	</div>
+	<div class="header-page">
+		<h5>support the site</h5>
+		<h3>patreon</h3>
+		<p>
+			if you love galaxy, consider helping it thrive for years to come,
+			and get the
+			<span
+				class="flair"
+				data-flair="donator"
+				style="border-radius: 3px; padding: 2px 8px;">donator</span
+			>
+			flair and more in return.
+		</p>
+		<div class="buttons">
+			<a href="https://patreon.com/Yhvr" class="button"
+				>donate on patreon</a
+			>
+		</div>
+	</div>
+
+	<!-- <div class="header-page">
+		<h5>daily game</h5>
+		<h3>daily game</h3>
+		<p>
+			as the site grows, we will pick a game to be shown here every day<br
+			/>
+			using a very good (open-source) unbiased algorithm to make sure every
+			game gets the attention it deserves
+		</p>
+		<div class="buttons">
+			<button disabled>coming soon...</button>
+		</div>
+	</div> -->
+	<!-- <div class="header-page">
+		<h5>example event - not real</h5>
+		<h3>galaxy mix</h3>
+		<p>
+			find original soundtracks as easter eggs across the website<br/>
+			discover tunes to watch numbers go up to<br/>
+			our event managers are very proud of this event
+		</p>
+		<div class="buttons">
+			<button disabled>if this website raises enough money we will do this for real</button>
+		</div>
+	</div> -->
+	<div class="header-page">
+		<h5>website update</h5>
+		<h3>tag filters</h3>
+		<p>
+			site-wide tag filters now exist. hide all TMT mods, only show
+			mobile-friendly games, or anything else you could imagine!
+		</p>
+		<div class="buttons">
+			<a href="/filters" class="button">configure filters</a>
+		</div>
+	</div>
+	<div class="header-page">
+		<h5>website update</h5>
+		<h3>beta in progress</h3>
+		<p>
+			this website is still under heavy construction.<br />
+			things might change or break, so stay tuned for more updates!
+		</p>
+		<!-- <div class="buttons">
+			<button disabled>view updates</button>
+		</div> -->
+	</div>
+	<div class="header-page">
+		<h5>features</h5>
+		<h3>cloud saving</h3>
+		<p>
+			take advantage of free cloud saving for every game on galaxy.<br />
+			some games may even have it built-in, thanks to our cloud saving API!
+		</p>
+		<div class="buttons">
+			<a href="/explore/luck" class="button">try a random game</a>
+		</div>
+	</div>
+	<!-- <div class="header-page">
+		<h5>test news</h5>
+		<h3>hi i am a very long news message title</h3>
+		<p>
+			inset a very long text that is too long to reasonably fit into the header here
+			hmm not long enough? i think i will probably throw some sample text here hope it works
+			lorem ipsum dolor sit amet, consetetur elit aliqua something i don't know
+			the quick brown fox jumps over the lazy dog ajfoafahhucaajsdjsaiojuewklbgkdvj
+			blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah
+		</p>
+		<div class="buttons">
+			<button disabled>aaaaaaaaaaaaaa</button>
+			<button disabled>i want to be a button containing an unreasonably large amount of lowercase latin characters because i am such a greedy button and i want take as many screen space as possible</button>
+			<button disabled>sample text</button>
+			<button disabled>is this long enough?</button>
+			<button disabled>hi</button>
+			<button disabled>useless button</button>
+		</div>
+	</div> -->
+	<div class="header-page">
+		<h5>developers</h5>
+		<h3>we're open-source</h3>
+		<p>
+			the source code for galaxy has been made available for anyone to
+			read or modify however they see fit.
+		</p>
+		<div class="buttons">
+			<a href="https://gitlab.com/yhvr/galaxy-astro" class="button"
+				>source code</a
+			>
+		</div>
+	</div>
+	<div class="header-page">
+		<h5>galaxy labs</h5>
+		<h3>galaxy cluster</h3>
+		<p>
+			cram multiple incrementals on screen at once, and tile them to best
+			fit your needs.<br />
+			currently, it's only a proof-of-concept. who knows where it'll go in
+			the future?
+		</p>
+		<div class="buttons">
+			<a href="/cluster" class="button">try cluster</a>
+		</div>
+	</div>
+	<div class="header-page">
+		<h5>developers</h5>
+		<h3 aria-label="we love developers">we ❤ developers</h3>
+		<p>
+			we know your struggles&mdash;making games is hard.<br />
+			we've spent months making a site worthy of your games.
+		</p>
+		<div class="buttons">
+			<a href="/publish" class="button">publish</a>
+			<a href="/docs/dev" class="button">read the docs</a>
+		</div>
+	</div>
+	<div class="header-page">
+		<h5>features</h5>
+		<h3>chat on galaxy</h3>
+		<p>chat with other people on galaxy in real-time. for free, forever.</p>
+		<div class="buttons">
+			<a href="/chat" class="button">say hello</a>
+		</div>
+	</div>
+</div>
+<style>
+	#header-image {
+		position: fixed;
+		top: 0px;
+		left: 0;
+		right: 0;
+
+		background: linear-gradient(
+			hsla(calc(var(--accent-hue) - 25deg), 50%, 50%, 0.5),
+			hsla(calc(var(--accent-hue) + 25deg), 50%, 50%, 0.5)
+		);
+		height: 500px;
+		max-width: 100vw;
+		border-bottom-left-radius: 50% 20%;
+		border-bottom-right-radius: 50% 20%;
+		z-index: -1;
+
+		text-align: center;
+		padding-top: 0px;
+		font-size: 24px;
+	}
+
+	#header-image > div {
+		color: var(--color-0);
+		max-width: 100%;
+		padding-top: 120px;
+		opacity: 0.1;
+		white-space: nowrap;
+		position: relative;
+	}
+
+	#useless-points {
+		font-size: 5em;
+		font-family: var(--header-font);
+	}
+
+	#header-wrapper {
+		height: 300px;
+		padding: 0px var(--global-padding);
+		overflow: hidden;
+
+		display: flex;
+		align-items: center;
+		justify-content: left;
+	}
+
+	.header-page {
+		position: absolute;
+		z-index: 1;
+		padding: 0px var(--global-padding);
+		max-width: min(
+			min(calc(100% - calc(var(--global-padding) * 4)), 800px),
+			calc(100vw - 75px)
+		);
+		transition:
+			opacity 0.4s,
+			transform 0.4s;
+		opacity: 0;
+		transform: translateX(20px);
+		pointer-events: none;
+	}
+
+	.header-page.active {
+		opacity: 1;
+		z-index: 2;
+		transform: translateX(0px);
+		pointer-events: initial;
+	}
+
+	.header-page.out {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+
+	.header-page h3 {
+		margin-top: 0;
+		font-size: 2em;
+	}
+
+	.header-page h5 {
+		margin: 0;
+		opacity: 0.5;
+		font-family: var(--header-font);
+		font-weight: normal;
+	}
+</style>
+<script>
+	let number = 1;
+	let numberExp = 0;
+	let numberTower = 0;
+
+	const imageDiv = document.getElementById("header-image");
+	const containerDiv = document.querySelector(
+		"#header-image > div"
+	) as HTMLElement;
+	const pointsDiv = document.getElementById("useless-points");
+
+	const pages = document.querySelectorAll("#header-wrapper > div");
+	pages[0].classList.add("active");
+	let currentPage = 0;
+
+	function setPage(page) {
+		pages[currentPage].classList.add("out");
+
+		setTimeout(() => {
+			pages[currentPage].classList.remove("out");
+			pages[currentPage].classList.remove("active");
+
+			currentPage = page;
+
+			pages[currentPage].classList.add("active");
+			pages[currentPage].classList.add("in");
+		}, 400);
+
+		setTimeout(() => {
+			pages[currentPage].classList.remove("in");
+		}, 800);
+	}
+
+	setInterval(() => {
+		setPage((currentPage + 1) % pages.length);
+	}, 10000);
+
+	let time = Date.now();
+
+	window.addEventListener("scroll", () => {
+		imageDiv.style.top = window.scrollY / -4 + "px";
+		imageDiv.style.opacity = 0.999 ** window.scrollY + "";
+		containerDiv.style.top = window.scrollY / -4 + "px";
+	});
+
+	// Decoration number
+
+	function toFixed(num: number, sig = 0) {
+		return num.toLocaleString("en-US", {
+			minimumFractionDigits: sig,
+			maximumFractionDigits: sig,
+		});
+	}
+
+	const interval = setInterval(() => {
+		let delta = Date.now() - time;
+		time += delta;
+		delta /= 1000;
+		const inc = ((numberExp / 10 + 0.1) / 5 ** numberTower) * delta;
+		numberExp += Math.floor(inc);
+		number *= 10 ** (inc % 1);
+		const exp = Math.floor(Math.log10(number));
+		if (exp >= 1) {
+			number /= 10 ** exp;
+			numberExp += exp;
+		}
+		if (numberExp >= 1e6) {
+			number = numberExp;
+			numberExp = 0;
+			numberTower++;
+		}
+		pointsDiv.innerText =
+			"".padEnd(numberTower, "e") +
+			(numberExp >= 6
+				? toFixed(
+						number,
+						Math.max(4 - Math.floor(Math.log10(numberExp || 1)), 0)
+				  ) +
+				  "e" +
+				  toFixed(numberExp, 0)
+				: toFixed(number * 10 ** numberExp, 0));
+	}, 3000);
+</script>

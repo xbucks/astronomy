@@ -1,0 +1,65 @@
+:root {
+	--background-0: hsl(var(--accent-hue), 20%, 84%);
+	--background-1: hsl(var(--accent-hue), 20%, 86%);
+	--background-2: hsl(var(--accent-hue), 20%, 88%);
+	--background-3: hsl(var(--accent-hue), 20%, 90%);
+	--background-4: hsl(var(--accent-hue), 20%, 92%);
+	--background-5: hsl(var(--accent-hue), 20%, 94%);
+	--background-6: hsl(var(--accent-hue), 20%, 96%);
+
+	--background-active-0: hsl(var(--accent-hue), 40%, 50%);
+	--background-active-1: hsl(var(--accent-hue), 40%, 60%);
+	--background-active-2: hsl(var(--accent-hue), 40%, 66%);
+	--background-active-3: hsl(var(--accent-hue), 40%, 72%);
+	--background-active-4: hsl(var(--accent-hue), 40%, 78%);
+	--background-active-5: hsl(var(--accent-hue), 40%, 84%);
+	--background-active-6: hsl(var(--accent-hue), 40%, 90%);
+
+	--color-0: hsl(var(--accent-hue), 100%, 12%);
+	--color-1: hsl(var(--accent-hue), 100%, 16%);
+	--color-2: hsl(var(--accent-hue), 100%, 20%);
+	--color-3: hsl(var(--accent-hue), 100%, 24%);
+	--color-4: hsl(var(--accent-hue), 100%, 28%);
+
+	--color-active-0: hsl(var(--accent-hue), 100%, 10%);
+	--color-active-1: hsl(var(--accent-hue), 85%, 20%);
+	--color-active-2: hsl(var(--accent-hue), 70%, 30%);
+	--color-active-3: hsl(var(--accent-hue), 55%, 40%);
+	--color-active-4: hsl(var(--accent-hue), 40%, 50%);
+
+	--background-red-0: #ebb;
+	--background-red-1: #e99;
+
+	--background-blue-0: #bbe;
+	--background-blue-1: #99e;
+
+	--background-green-0: #beb;
+	--background-green-1: #9e9;
+
+	--flair-tester-bg: #ccfa;
+	--flair-tester-fg: #112;
+
+	--flair-gamedev-bg: #fdca;
+	--flair-gamedev-fg: #221811;
+
+	--flair-vip-bg: #ffca;
+	--flair-vip-fg: #221;
+
+	--flair-contributor-bg: #cfca;
+	--flair-contributor-fg: #121;
+
+	--flair-donator-bg: #ffaa;
+	--flair-donator-fg: #551;
+
+	--flair-mod-bg: #afaa;
+	--flair-mod-fg: #151;
+
+	--flair-admin-bg: #aafa;
+	--flair-admin-fg: #115;
+
+	--flair-owner-bg: #faaa;
+	--flair-owner-fg: #511;
+
+	--flair-suggester-bg: #115;
+	--flair-suggester-fg: #aafc;
+}

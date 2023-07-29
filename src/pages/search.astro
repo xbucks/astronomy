@@ -1,0 +1,41 @@
+---
+import { getTagCategories, getTagData } from "../helper/tags";
+import { queryFromSearchParams, search } from "../helper/search";
+import DetailedGameCard from "../components/DetailedGameCard.svelte";
+import GenericGameList from "../components/GenericGameList.svelte";
+import Layout from "../layouts/Layout.astro";
+import SearchWidget from "../components/SearchWidget.svelte";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+// const games = await Game.aggregate([{ $match: { $text: { $search: t } } }])
+// const games = await search({ t: "Tree", s: "ratingBest", tags: [] })
+
+const query = queryFromSearchParams(Astro.url.searchParams);
+const games = await search(query, Astro.cookies.get("filters").value);
+---
+
+<Layout title="galaxy - search" user={{ user, loggedIn, needsVerification }}>
+	<main id="main">
+		<div id="container">
+			<SearchWidget
+				tagList={getTagData()}
+				tagCategories={getTagCategories()}
+				client:only
+			/>
+			<GenericGameList
+				games={games}
+				allowGameList={false}
+				title="results"
+				client:load
+			/>
+		</div>
+	</main>
+</Layout>
+<DetailedGameCard client:load />
+
+<style>
+	#main {
+		margin-top: 50px;
+	}
+</style>

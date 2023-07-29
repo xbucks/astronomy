@@ -1,0 +1,61 @@
+---
+import { Game } from "../../models/game";
+import Icon from "@iconify/svelte";
+import Layout from "../../layouts/Layout.astro";
+import { Update } from "../../models/update";
+import UpdateDisplay from "../../components/UpdateDisplay.svelte";
+
+const { gameId } = Astro.params;
+// string | number -> string -> number
+// wtf, ts?
+const gameNum = parseInt(gameId.toString());
+if (isNaN(gameNum)) return new Response(null, { status: 404 });
+
+const game = await Game.findOne({ id: gameId });
+if (!game) return new Response(null, { status: 404 });
+
+// const author = await User.findOne({ id: game.author });
+const updates = await Update.find({ game: gameNum }).sort({ id: -1 });
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+---
+
+<Layout
+	title={`galaxy - ${game.name} updates`}
+	user={{
+		user,
+		loggedIn,
+		needsVerification,
+	}}
+>
+	<main id="main">
+		<h1>
+			all updates for
+			<a href={`/play/${game.id}`} class="masked-link">{game.name}</a>
+		</h1>
+		<a href={`/play/${game.id}`} class="button">back to game</a>
+		{
+			/* TODO: this is so jank. find a way to not have layout shift. BUT pleasereconsider having a different way to list these altogether. */
+		}
+		<a href={`/updates/${game.id}/rss.xml`} class="button"
+			><Icon
+				icon="material-symbols:rss-feed"
+				width="18"
+				style="vertical-align: text-bottom;"
+				inline
+				client:idle
+			/>RSS feed</a
+		>
+		<a href={`/updates/${game.id}/atom.xml`} class="button"
+			><Icon
+				icon="material-symbols:rss-feed"
+				width="18"
+				style="vertical-align: text-bottom;"
+				inline
+				client:idle
+			/>atom feed</a
+		>
+		<hr />
+		{updates.map(update => <UpdateDisplay {update} />)}
+	</main>
+</Layout>

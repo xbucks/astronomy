@@ -1,0 +1,64 @@
+---
+import { explore, exploreNames, validExploreType } from "../../helper/explore";
+import DetailedGameCard from "../../components/DetailedGameCard.svelte";
+import type { ExploreType } from "../../helper/explore";
+import GenericGameList from "../../components/GenericGameList.svelte";
+import Layout from "../../layouts/Layout.astro";
+import Pagination from "../../components/Pagination.svelte";
+
+const { exploring } = Astro.params;
+
+let page = parseInt(Astro.url.searchParams.get("page"));
+if (isNaN(page)) {
+	page = 1;
+}
+
+if (!validExploreType(exploring)) return new Response(null, { status: 404 });
+
+const filter = Astro.cookies.get("filters").value;
+
+const { games, pages } = await explore(
+	exploring as ExploreType,
+	page,
+	100,
+	filter
+);
+
+const url = Astro.url;
+
+// TODO: prod has a nginx proxy, so it thinks that the url is localhost:3000
+// fix this when
+if (import.meta.env.PROD) {
+	url.host = "galaxy.click";
+	url.port = "443";
+	url.protocol = "https:";
+}
+---
+
+<Layout title={`galaxy - ${exploring} games`}>
+	<main id="explore-main">
+		<GenericGameList
+			allowGameList={false}
+			games={games}
+			title={`${exploreNames[exploring]} games`}
+			client:load
+		/>
+
+		<Pagination url={url} pages={pages} currentPage={page} />
+	</main>
+</Layout>
+<DetailedGameCard client:load />
+
+<style is:global>
+	#explore-main {
+		margin: 20px var(--global-padding);
+	}
+
+	#flex {
+		display: flex;
+		justify-content: left;
+		align-items: flex-start;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+</style>

@@ -1,0 +1,15 @@
+---
+export interface Props {
+	status: number;
+	title: string[];
+}
+const status = Astro.props.status;
+const title =
+	Astro.props.title[Math.floor(Math.random() * Astro.props.title.length)];
+---
+
+<div>
+	<h1>{status}: {title}</h1>
+	<slot /><a class="button" href="/">back to home</a><br />
+	<a class="button" href="/">wanna play some games?</a>
+</div>

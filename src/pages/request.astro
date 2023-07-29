@@ -1,0 +1,122 @@
+---
+import Form from "../components/Form.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="request a game - galaxy">
+	<main id="main">
+		<p>game requests are disabled at this moment</p>
+		<!-- <h1>request a game</h1>
+		<p>
+			Games on Galaxy are posted by their developers. However, if you'd
+			like to see a game on the site, you can fill out this form and we'll
+			contact the creator on your behalf.<br />
+			If their game gets put on the site as a result, you'll receive the <span
+				class="flair"
+				data-flair="suggester"
+				style="border-radius: 3px; padding: 2px 8px;"
+			>
+				suggester</span
+			> flair.
+		</p>
+		<div id="request" data-action="/api/games/request">
+			{
+				Astro.locals.auth.loggedIn ? (
+					<Form>
+						<div data-label="game name">
+							<input
+								type="text"
+								name="name"
+								placeholder="(required)"
+								required
+							/>
+						</div>
+						<div data-label="game link">
+							<input
+								type="url"
+								name="link"
+								placeholder="(required)"
+								required
+							/>
+						</div>
+						<div data-label="developer contact">
+							<input
+								type="text"
+								name="contact"
+								placeholder="discord link, email, etc. (optional)"
+							/>
+						</div>
+						<div data-label="anything else?">
+							<textarea name="also" placeholder="(optional)" />
+						</div>
+						<div data-label="sanity check">
+							<input type="checkbox" name="sanity" id="sanity" />
+							<label for="sanity">
+								I have confirmed that this game isn't already on
+								galaxy
+							</label>
+						</div>
+						<div data-label="let's go">
+							<button type="submit" role="button">
+								request game
+							</button>
+						</div>
+					</Form>
+				) : (
+					<p>
+						<button onclick="promptLogin()">log in</button> or
+						<a href="/signup" class="button">
+							sign up
+						</a>
+						to make a game request.
+					</p>
+				)
+			}
+		</div> -->
+		<div id="thanks" style="display: none">
+			<p>
+				Thank you! Your request has been processed. We will review it
+				and get back to you as soon as possible.
+				<br />
+				<a href="/request" class="button">suggest another game</a>
+			</p>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	[name="also"] {
+		margin-top: 2px;
+		max-width: 410px;
+		width: 100%;
+		min-height: 100px;
+	}
+</style>
+
+<script>
+	import { form, promptLogin } from "../libgalaxy";
+
+	// @ts-expect-error
+	window.promptLogin = promptLogin;
+
+	form(
+		"request",
+		["name", "link", "contact", "also"],
+		res => {
+			if (res.message === "success") {
+				document.getElementById("request").style.display = "none";
+				document.getElementById("thanks").style.display = "block";
+			}
+		},
+		false,
+		() => {
+			if (
+				// @ts-ignore
+				document.getElementById("sanity").checked === false
+				// @ts-ignore
+			)
+				return "Please confirm the game isn't on the site";
+			return true;
+		}
+	);
+</script>

@@ -1,0 +1,98 @@
+{
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:astro/recommended",
+		"plugin:svelte/recommended",
+		"prettier"
+	],
+	"env": {
+		"browser": true,
+		"node": true
+	},
+	"parserOptions": {
+		"project": "tsconfig.eslint.json",
+		"extraFileExtensions": [".astro", ".svelte"]
+	},
+	"rules": {
+		/* ESLint */
+
+		// prefer `const` over `let` (except when mixed in destructuring)
+		"prefer-const": [
+			"warn",
+			{
+				"destructuring": "all"
+			}
+		],
+
+		"sort-imports": [
+			"warn",
+			{
+				"allowSeparatedGroups": true
+			}
+		],
+
+		/* TypeScript */
+
+		// TODO: fix all instances of these and upgrade to "error"
+		"@typescript-eslint/ban-ts-comment": [
+			"warn",
+			{
+				"ts-expect-error": true,
+				"ts-ignore": true,
+				"ts-nocheck": true,
+				"ts-check": false
+			}
+		],
+
+		// enforces `import type`, allows `import()`
+		"@typescript-eslint/consistent-type-imports": [
+			"error",
+			{
+				"disallowTypeAnnotations": false
+			}
+		],
+
+		"@typescript-eslint/strict-boolean-expressions": "error",
+
+		// Shut up
+		"@typescript-eslint/no-empty-function": "off",
+		"@typescript-eslint/no-empty-interface": "off",
+		"@typescript-eslint/no-inferrable-types": "off",
+
+		"@typescript-eslint/no-unused-vars": [
+			"warn",
+			{
+				"argsIgnorePattern": "^_",
+				"varsIgnorePattern": "^_",
+				"caughtErrorsIgnorePattern": "^_"
+			}
+		],
+		"no-unused-vars": "off",
+
+		/* Svelte */
+
+		// only used for markdown rendering
+		"svelte/no-at-html-tags": "off"
+	},
+	"overrides": [
+		{
+			"files": ["*.astro"],
+			"parser": "astro-eslint-parser",
+			"parserOptions": {
+				"parser": "@typescript-eslint/parser"
+			}
+		},
+		{
+			"files": ["*.svelte"],
+			"parser": "svelte-eslint-parser",
+			"parserOptions": {
+				"parser": "@typescript-eslint/parser"
+			}
+		},
+		{
+			"files": ["*.ts", "*.tsx"],
+			"parser": "@typescript-eslint/parser"
+		}
+	]
+}

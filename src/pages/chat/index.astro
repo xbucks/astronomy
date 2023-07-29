@@ -1,0 +1,67 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="galaxy - chat">
+	<main id="main">
+		<input
+			type="text"
+			id="channel"
+			placeholder="enter a channel id..."
+			autofocus
+		/>
+		<button id="go">go</button>
+		<p>don't know where to start?</p>
+		<div id="favorites"></div>
+	</main>
+</Layout>
+
+<script>
+	document.getElementById("go").addEventListener("click", goToChannel);
+
+	const favorites = JSON.parse(
+		localStorage.getItem("favorite-chats") ?? "[]"
+	);
+
+	if (!favorites.includes("general")) favorites.unshift("general");
+
+	favorites.forEach(fave => {
+		const btn = document.createElement("button");
+		btn.textContent = fave;
+		btn.classList.add("channel-link");
+		document.getElementById("favorites").appendChild(btn);
+	});
+
+	document.querySelectorAll(".channel-link").forEach(btn =>
+		btn.addEventListener("click", () => {
+			document.location.pathname = `/chat/${btn.textContent}`;
+		})
+	);
+
+	document.getElementById("channel").addEventListener("keypress", e => {
+		if (e.key === "Enter") goToChannel();
+	});
+
+	function goToChannel() {
+		let { value } = document.getElementById("channel") as HTMLInputElement;
+		value = value.trim();
+		if (value !== "") document.location.pathname = `/chat/${value}`;
+	}
+</script>
+
+<style>
+	#channel {
+		font-family: var(--header-font);
+		font-weight: bold;
+		font-size: 40px;
+		width: 100%;
+		height: 60px;
+		padding: 0;
+	}
+
+	@media screen and (max-width: 500px) {
+		#channel {
+			font-size: 20px;
+		}
+	}
+</style>

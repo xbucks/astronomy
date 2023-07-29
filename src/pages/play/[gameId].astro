@@ -1,0 +1,133 @@
+---
+import {
+	attachNamesToComments,
+	idToComments,
+} from "../../helper/fetchComments";
+import DetailedGameCard from "../../components/DetailedGameCard.svelte";
+import { Favorite } from "../../models/favorite";
+import { Game } from "../../models/game";
+import GameComments from "../../components/GameComments.svelte";
+import GameInfo from "../../components/GameInfo.svelte";
+import GameList from "../../components/GameList.svelte";
+import GameWindow from "../../components/GameWindow.svelte";
+import type { IFrontendComment } from "../../types";
+import Layout from "../../layouts/Layout.astro";
+import { Rating } from "../../models/rating";
+import { Update } from "../../models/update";
+import { User } from "../../models/user";
+import { convertFormat } from "../../libgalaxy";
+import { fromGame } from "../../helper/similar";
+import { getTagData } from "../../helper/tags";
+
+const { gameId } = Astro.params;
+// string | number -> string -> number
+// wtf, ts?
+const gameNum = parseInt(gameId.toString());
+if (isNaN(gameNum)) return new Response(null, { status: 404 });
+
+const game = await Game.findOne({ id: gameId }).lean();
+if (!game) return new Response(null, { status: 404 });
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+// THis can all be one if statement but I could barely understand it
+if (game.verified !== true) {
+	if (!loggedIn) {
+		return Astro.redirect("/");
+	}
+	if (user.id !== game.author && user.modLevel === 0) {
+		return Astro.redirect("/");
+	}
+}
+
+const author = await User.findOne({ id: game.author }).lean();
+
+const updates = await Update.find({ game: gameNum }).sort({ id: -1 }).lean();
+const update = updates[0];
+
+let plainNewComments: IFrontendComment[];
+let plainTopComments: IFrontendComment[];
+let favorited = false;
+let rating = 0;
+if (loggedIn) {
+	plainNewComments = await idToComments(gameNum, "createdAt", user.id);
+	plainTopComments = await idToComments(gameNum, "score", user.id);
+	favorited =
+		(await Favorite.exists({ game: gameNum, user: user.id })) !== null;
+	const ratingDoc = await Rating.findOne({
+		game: gameId,
+		author: user.id,
+	});
+	if (ratingDoc) rating = ratingDoc.rating;
+} else {
+	plainNewComments = await idToComments(gameNum, "createdAt");
+	plainTopComments = await idToComments(gameNum, "score");
+}
+const newComments = await attachNamesToComments(plainNewComments);
+const topComments = await attachNamesToComments(plainTopComments);
+
+const similarGames = await fromGame(game, Astro.cookies.get("filters").value);
+---
+
+<Layout
+	title={`${game.name} - galaxy`}
+	user={{
+		user,
+		loggedIn,
+		needsVerification,
+	}}
+	ogp={{
+		title: game.name,
+		description: `${game.favorites}❤ ${game.ratingAvg.toFixed(1)}⭐ | by ${author.name}
+${game.description}`,
+		image: convertFormat("/thumb/large/", game.id, game.thumbTimestamp),
+		largeImage: true,
+	}}
+>
+	<div id="game-filler"></div>
+	<GameWindow game={game} userId={user?.id} client:only />
+	<main id="main">
+		<GameInfo
+			client:load
+			game={game}
+			isDev={user?.id === game.author}
+			isLoggedIn={loggedIn}
+			author={[author.name, author.equippedFlair, author.pfpTimestamp]}
+			rating={rating}
+			update={update}
+			favorited={favorited}
+			allTags={getTagData()}
+		/>
+
+		{
+			game.tags.length !== 0 && similarGames.length > 0 && (
+				<GameList
+					games={similarGames}
+					title="similar games"
+					size={{ thumb: "medium", width: 240 }}
+					client:idle
+				/>
+			)
+		}
+
+		<GameComments
+			client:idle
+			gameId={gameNum}
+			userId={user?.id}
+			isDev={user?.id === game.author}
+			isLoggedIn={loggedIn}
+			isStaff={user?.modLevel >= 1}
+			newComments={newComments}
+			topComments={topComments}
+		/>
+	</main>
+</Layout>
+<DetailedGameCard client:load />
+
+<style>
+	#game-filler {
+		height: 75vh;
+		width: 100%;
+		background: var(--background-0);
+	}
+</style>

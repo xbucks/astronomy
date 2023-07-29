@@ -1,0 +1,134 @@
+---
+
+---
+
+<div class="form container">
+	<slot />
+</div>
+
+<style is:global>
+	:is(.form, .form > astro-island) > div {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+	}
+	:is(.form, .form > astro-island) > div::before {
+		left: 0;
+		width: min(188px, calc(30% - 12px));
+		padding: 6.5px 12px 0 0;
+		content: attr(data-label);
+		text-align: right;
+		flex-shrink: 0;
+	}
+
+	:is(.form, .form > astro-island) > hr {
+		border: none;
+	}
+
+	:is(.form, .form > astro-island) > div > button {
+		display: block;
+	}
+	:is(.form, .form > astro-island) > div > button::before {
+		content: ">\00a0";
+		opacity: 0.5;
+		display: inline-block;
+	}
+
+	:is(.form, .form > astro-island) > div > textarea {
+		background: var(--background-1);
+	}
+
+	:is(.form, .form > astro-island) > div > input {
+		padding: 0 12px;
+		margin: 2px 0 0 0;
+		display: block;
+		width: min(400px, 70%);
+		height: 26px;
+		line-height: 26px;
+		font-size: 14px;
+		font-family: var(--content-font);
+		background: var(--background-1);
+		color: var(--color-0);
+		outline: 1px solid #7770;
+		border-radius: 3px;
+	}
+
+	:is(.form, .form > astro-island) > div > input[type="checkbox"] {
+		appearance: none;
+		position: relative;
+		width: 26px;
+		margin-right: 12px;
+		background: var(--background-3);
+		box-shadow: 1px 0 5px #0007;
+	}
+	:is(.form, .form > astro-island)
+		> div
+		> input[type="checkbox"]:is(:hover, :focus) {
+		outline: none;
+	}
+	:is(.form, .form > astro-island)
+		> div
+		> input[type="checkbox"]:is(:hover, :focus-visible) {
+		background: var(--background-active-5);
+		transition: background 0.3s;
+	}
+	:is(.form, .form > astro-island) > div > input[type="checkbox"]:before {
+		content: "";
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		bottom: 2px;
+		right: 2px;
+		background: #000;
+		border-radius: 2px;
+		box-shadow: inset 0px 0 5px #0007;
+		transition: background 0.3s;
+		opacity: 0.25;
+	}
+	:is(.form, .form > astro-island)
+		> div
+		> input[type="checkbox"]:checked:before {
+		background: var(--background-active-0);
+	}
+	:is(.form, .form > astro-island)
+		> div
+		> input[type="checkbox"]:checked:after {
+		content: "✓";
+		color: var(--color-active-0);
+		font-size: 200%;
+		position: absolute;
+		left: 3px;
+		bottom: 2px;
+	}
+	:is(.form, .form > astro-island) > div > input[type="checkbox"] + label {
+		appearance: none;
+		position: relative;
+		margin-block: 6px;
+	}
+	:is(.form, .form > astro-island) > div > input:hover,
+	:is(.form, .form > astro-island) > div > input:focus {
+		outline: 1px solid var(--background-active-6);
+		transition: outline 0.3s;
+	}
+
+	@media screen and (max-width: 720px) {
+		:is(.form, .form > astro-island) > div {
+			padding: 0;
+			flex-direction: column;
+		}
+		:is(.form, .form > astro-island) > div[data-label]::before {
+			text-align: left;
+			height: 24px;
+			line-height: 24px;
+		}
+		:is(.form, .form > astro-island)
+			> div
+			> input[type="checkbox"]
+			+ label {
+			top: -27px;
+			left: 38px;
+			width: calc(100% - 38px);
+			margin-bottom: -27px;
+		}
+	}
+</style>

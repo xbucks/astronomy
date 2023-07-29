@@ -1,0 +1,9 @@
+---
+import NotFound from "./404.astro";
+import { User } from "../models/user";
+
+const user = await User.findOne({ name: Astro.params.username });
+if (user != null) return Astro.redirect(`/user/${user.id}`);
+---
+
+<NotFound />

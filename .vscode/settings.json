@@ -1,0 +1,16 @@
+{
+	"eslint.packageManager": "pnpm",
+	"eslint.validate": [
+		"astro",
+		"javascript",
+		"javascriptreact",
+		"svelte",
+		"typescript",
+		"typescriptreact"
+	],
+	"prettier.documentSelectors": ["**/*.astro", "**/*.svelte"],
+	"[astro][css][javascript][javascriptreact][json][jsonc][svelte][typescript][typescriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib"
+}

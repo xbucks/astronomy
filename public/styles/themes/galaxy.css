@@ -1,0 +1,65 @@
+:root {
+	--background-0: #000;
+	--background-1: #111;
+	--background-2: #222;
+	--background-3: #333;
+	--background-4: #444;
+	--background-5: #555;
+	--background-6: #666;
+
+	--background-active-0: hsl(var(--accent-hue), 40%, 6%);
+	--background-active-1: hsl(var(--accent-hue), 36%, 12%);
+	--background-active-2: hsl(var(--accent-hue), 32%, 18%);
+	--background-active-3: hsl(var(--accent-hue), 28%, 24%);
+	--background-active-4: hsl(var(--accent-hue), 24%, 30%);
+	--background-active-5: hsl(var(--accent-hue), 20%, 36%);
+	--background-active-6: hsl(var(--accent-hue), 16%, 42%);
+
+	--color-0: #fff;
+	--color-1: #ddd;
+	--color-2: #bbb;
+	--color-3: #999;
+	--color-4: #777;
+
+	--color-active-0: hsl(var(--accent-hue), 100%, 90%);
+	--color-active-1: hsl(var(--accent-hue), 85%, 80%);
+	--color-active-2: hsl(var(--accent-hue), 70%, 70%);
+	--color-active-3: hsl(var(--accent-hue), 55%, 60%);
+	--color-active-4: hsl(var(--accent-hue), 40%, 50%);
+
+	--background-red-0: #211;
+	--background-red-1: #611;
+
+	--background-blue-0: #112;
+	--background-blue-1: #114;
+
+	--background-green-0: #121;
+	--background-green-1: #161;
+
+	--flair-tester-bg: #112a;
+	--flair-tester-fg: #ccf;
+
+	--flair-gamedev-bg: #221811aa;
+	--flair-gamedev-fg: #fdc;
+
+	--flair-vip-bg: #221a;
+	--flair-vip-fg: #ffc;
+
+	--flair-contributor-bg: #121a;
+	--flair-contributor-fg: #cfc;
+
+	--flair-donator-bg: #551a;
+	--flair-donator-fg: #ffa;
+
+	--flair-mod-bg: #151a;
+	--flair-mod-fg: #afa;
+
+	--flair-admin-bg: #115a;
+	--flair-admin-fg: #aaf;
+
+	--flair-owner-bg: #511a;
+	--flair-owner-fg: #faa;
+
+	--flair-suggester-bg: #aafc;
+	--flair-suggester-fg: #115;
+}

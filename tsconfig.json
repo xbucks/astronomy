@@ -1,0 +1,15 @@
+{
+	"extends": "astro/tsconfigs/base",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"outDir": "dist-router",
+		"verbatimModuleSyntax": true,
+		"plugins": [
+			{
+				"name": "@astrojs/ts-plugin"
+			}
+		]
+	},
+	"exclude": [".output", "dist", "dist-router"]
+}

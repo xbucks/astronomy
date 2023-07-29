@@ -1,0 +1,35 @@
+---
+export interface Props {
+	stat: number | string;
+	desc: string;
+}
+
+let { stat, desc } = Astro.props;
+if (typeof stat === "number") stat = stat.toLocaleString();
+---
+
+<div class="stat-grid-entry">
+	<p class="big-stat">{stat}</p>
+	<p class="stat-descriptor">{desc}</p>
+</div>
+
+<style>
+	.stat-grid-entry {
+		height: 130px;
+		background: var(--background-3);
+		border-radius: 10px;
+		padding: 50px;
+	}
+
+	.big-stat {
+		font-size: 70px;
+		font:
+			JetBrains Mono,
+			monospace;
+		margin: 0;
+	}
+
+	.stat-descriptor {
+		font-size: 22px;
+	}
+</style>

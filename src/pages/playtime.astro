@@ -1,0 +1,40 @@
+---
+import DetailedGameCard from "../components/DetailedGameCard.svelte";
+import { Game } from "../models/game";
+import Icon from "@iconify/svelte";
+import Layout from "../layouts/Layout.astro";
+import { Playtime } from "../models/playtime";
+import PlaytimeView from "../components/PlaytimeView.svelte";
+import formatPlaytime from "../helper/formatPlaytime";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+if (!loggedIn && !needsVerification) return Astro.redirect("/");
+
+const playtimes = await Playtime.find({ user: user.id });
+const games = await Game.find({ id: { $in: playtimes.map(p => p.game) } });
+const sum = playtimes.reduce((a, b) => a + b.minutes, 0);
+---
+
+<Layout title="galaxy - playtime" user={{ user, loggedIn, needsVerification }}>
+	<main id="main">
+		<p id="playtime-big">
+			<Icon icon="material-symbols:timer" inline client:idle />{
+				formatPlaytime(sum)
+			}
+			total
+		</p>
+		<PlaytimeView
+			playtimes={playtimes.map(p => p.toObject())}
+			games={games.map(g => g.toObject())}
+			client:only
+		/>
+	</main>
+</Layout>
+<DetailedGameCard client:load />
+<style>
+	#playtime-big {
+		font-size: 40px;
+		text-align: center;
+		margin: 30px;
+	}
+</style>

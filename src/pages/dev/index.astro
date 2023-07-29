@@ -1,0 +1,44 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+---
+
+<Layout
+	title="galaxy - publish on galaxy"
+	user={{ user, loggedIn, needsVerification }}
+>
+	<main id="main">
+		<div id="content-container">
+			<h1>galaxy &#x2764; incremental devs</h1>
+			<p>
+				why?
+				<ul>
+					<li>upload in under a minute</li>
+					<li>reach a larger audience</li>
+					<li>no need to actively monitor your game</li>
+					<li>100% optional cloud-saving API</li>
+				</ul>
+				{
+					loggedIn ? (
+						<a href="/publish" class="button">
+							i'm sold
+						</a>
+					) : (
+						<a href="/signup" class="button">
+							sign up (it's free, forever)
+						</a>
+					)
+				}
+				<a href="/docs/dev" class="button">read the docs</a>
+			</p>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	#content-container {
+		max-width: 700px;
+		margin: auto;
+	}
+</style>

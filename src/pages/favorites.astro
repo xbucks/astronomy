@@ -1,0 +1,60 @@
+---
+import { Favorite } from "../models/favorite";
+import { Game } from "../models/game";
+import GameRow from "../components/GameRow.svelte";
+import type { IGame } from "../types";
+import Layout from "../layouts/Layout.astro";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+let games: IGame[] = [];
+
+if (loggedIn) {
+	const favorites = await Favorite.find({ user: user.id });
+	const ids = favorites.map(f => f.game);
+
+	games = await Game.find({ id: { $in: ids } });
+}
+---
+
+<Layout
+	title="galaxy - your favorite games"
+	user={{
+		user,
+		loggedIn,
+		needsVerification,
+	}}
+>
+	<main id="main">
+		{
+			loggedIn ? (
+				games.length === 0 ? (
+					<div>
+						<h1>crickets.</h1>
+						<p>
+							You don't have anything favorited.
+							<a href="/">Go find some games!</a>
+						</p>
+					</div>
+				) : (
+					<div>
+						<h1>favorite games</h1>
+						<hr />
+						{games.map(game => (
+							<GameRow game={game} />
+						))}
+					</div>
+				)
+			) : (
+				<div>
+					<h1>whoops :(</h1>
+					<p>
+						you can't favorite games without an account.
+						<br />
+						why not <a href="/signup">sign up?</a>
+					</p>
+				</div>
+			)
+		}
+	</main>
+</Layout>

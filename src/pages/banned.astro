@@ -1,0 +1,34 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const { user, needsVerification } = Astro.locals.auth;
+
+if (!user || user.banned === false) return Astro.redirect("/");
+---
+
+<Layout
+	title="galaxy - damn"
+	user={{ user, loggedIn: true, needsVerification }}
+>
+	<main id="main">
+		<h1>damn.</h1>
+		<p>
+			you've been banned from galaxy.<br />
+			{
+				user.banned === true ? (
+					<>no reason was specified.</>
+				) : (
+					<>the following reason has been specified: {user.banned}</>
+				)
+			}
+		</p>
+		<button
+			onclick="window.location.href = '/api/users/logout'; return false"
+		>
+			log out
+		</button>
+		<a href="/" class="button"
+			>act like nothing happened and play some more games</a
+		>
+	</main>
+</Layout>

@@ -1,0 +1,195 @@
+---
+import Layout from "./Layout.astro";
+---
+
+<Layout title={Astro.props.frontmatter.title}>
+	<main id="main">
+		<div id="sidebar">
+			<h2>galaxy docs</h2>
+
+			<a href="/docs/">welcome</a>
+			<a href="/docs/faq">faq</a>
+			<a href="/docs/chat">chat</a>
+			<a href="/docs/flairs">flairs</a>
+
+			<h3>iframe api</h3>
+			<a href="/docs/dev">introduction</a>
+			<details open>
+				<summary><a href="/docs/dev/features">features</a></summary>
+				<a href="/docs/dev/features/saving">cloud saves</a>
+			</details>
+			<details open>
+				<summary><a href="/docs/dev/actions">actions</a></summary>
+				<a href="/docs/dev/actions/supports"><code>supports</code></a>
+				<a href="/docs/dev/actions/save_list"><code>save_list</code></a>
+				<a href="/docs/dev/actions/save"><code>save</code></a>
+				<a href="/docs/dev/actions/load"><code>load</code></a>
+			</details>
+			<details open>
+				<summary><a href="/docs/dev/responses">responses</a></summary>
+				<a href="/docs/dev/responses/info"><code>info</code></a>
+				<a href="/docs/dev/responses/save_list"
+					><code>save_list</code></a
+				>
+				<a href="/docs/dev/responses/save_content"
+					><code>save_content</code></a
+				>
+				<a href="/docs/dev/responses/saved"><code>saved</code></a>
+			</details>
+		</div>
+		<div id="content">
+			<article>
+				<slot />
+			</article>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	/* TODO: Make this work on mobile */
+
+	main#main {
+		margin: 0;
+	}
+
+	#sidebar {
+		float: left;
+		width: 250px;
+		position: sticky;
+		top: 58px;
+		overflow: hidden auto;
+		background: var(--background-2);
+		padding: 10px 20px 20px var(--global-padding);
+		box-shadow: 0 1px 5px #0007;
+		height: calc(100vh - 98px);
+		border-radius: 0 5px 5px 0;
+	}
+
+	#sidebar > a,
+	#sidebar details > a,
+	#sidebar details {
+		margin-left: 12px;
+	}
+
+	#sidebar > a,
+	#sidebar details > a,
+	#sidebar summary {
+		width: calc(100% - 24px);
+		padding: 4px 12px;
+		margin-left: -12px;
+		height: 18px;
+		display: block;
+		text-decoration: none;
+		color: var(--color-1);
+		border-radius: 3px;
+	}
+
+	#sidebar summary a {
+		color: var(--color-1);
+		text-decoration: none;
+		pointer-events: hover;
+	}
+
+	#sidebar summary {
+		width: calc(100% - 12px);
+		margin-left: -24px;
+		cursor: pointer;
+	}
+
+	#sidebar > a:hover,
+	#sidebar details > a:hover,
+	#sidebar summary:hover {
+		color: var(--color-active-0);
+		background: var(--background-active-5);
+		text-decoration: underline;
+		transition:
+			color 0.3s,
+			background 0.3s;
+	}
+
+	#sidebar > a::before,
+	#sidebar details > a::before {
+		content: ">\00a0";
+		opacity: 0.5;
+		display: inline-block;
+	}
+
+	#sidebar details summary::before {
+		content: "+\00a0";
+		opacity: 0.5;
+		display: inline-block;
+	}
+
+	#sidebar details[open] summary::before {
+		content: "−\00a0";
+		opacity: 0.5;
+		display: inline-block;
+	}
+
+	#content {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden auto;
+		padding: 20px var(--global-padding) 20px 30px;
+		min-height: calc(100vh - 98px);
+	}
+
+	#content article {
+		flex-grow: 1;
+	}
+
+	#content :global(h1) {
+		font-size: 2em;
+	}
+
+	#content :global(h4) {
+		margin-block-end: 0.5em;
+	}
+
+	#content :global(h4 + p) {
+		margin-block-start: 0.5em;
+	}
+
+	#content :global(:is(h1, h2, h3, h4):not(:first-child)) {
+		margin-block-start: 1.5em;
+	}
+
+	#content :global(pre) {
+		tab-size: 4;
+		padding: 10px 15px;
+		border-radius: 5px;
+		border: 1px solid var(--color-3);
+	}
+
+	#content :global(#bottom) {
+		padding-inline: 0;
+		padding-bottom: 0;
+	}
+
+	#content :global(note) {
+		display: block;
+		--accent-hue: 240deg;
+		background: var(--background-active-3);
+		margin-block-start: 1em;
+		margin-block-end: 1em;
+		padding: 10px 15px;
+		border-radius: 5px;
+	}
+
+	#content :global(note::before) {
+		content: "📝 Note:";
+		display: block;
+		font-weight: bold;
+		margin-bottom: 6px;
+	}
+	#content :global(note[warning]::before) {
+		content: "⚠️ Warning:";
+	}
+
+	#content :global(note > p:first-child) {
+		margin-top: 0;
+	}
+	#content :global(note > p:last-child) {
+		margin-bottom: 0;
+	}
+</style>

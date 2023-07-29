@@ -1,0 +1,1157 @@
+---
+export interface Props {
+	user?: {
+		user?: IUser;
+		loggedIn: boolean;
+		needsVerification: boolean;
+	};
+}
+
+import { getLevel, getXP, getXPToNextLevel } from "../helper/leveling";
+import type { IUser } from "../types";
+import Icon from "@iconify/svelte";
+import { Message } from "../models/message";
+import Signature from "./Signature.svelte";
+import { convertFormat } from "../libgalaxy";
+
+let loggedIn = false;
+let username = "Anonymous";
+let userId = -1;
+let pfpTimestamp = -1;
+
+const { user } = Astro.props;
+
+let diffUser: {
+	user?: IUser;
+	loggedIn: boolean;
+	needsVerification: boolean;
+	shouldLogout: boolean;
+};
+if (user) {
+	diffUser = {
+		user: user.user,
+		loggedIn: user.loggedIn,
+		needsVerification: user.needsVerification,
+		shouldLogout: false,
+	};
+} else {
+	const auth = Astro.locals.auth;
+	diffUser = {
+		user: auth.user?.toObject(),
+		loggedIn: auth.loggedIn,
+		needsVerification: auth.needsVerification,
+		shouldLogout: auth.shouldLogout,
+	};
+}
+
+if (diffUser.shouldLogout) Astro.cookies.delete("token");
+if (diffUser.loggedIn || diffUser.needsVerification) {
+	username = diffUser.user.name;
+	userId = diffUser.user.id;
+	loggedIn = true;
+	pfpTimestamp = diffUser.user.pfpTimestamp;
+}
+
+let mcount: string | number = "0";
+if (diffUser.loggedIn) {
+	mcount = await Message.countDocuments({
+		to: userId,
+		read: false,
+		deleted: false,
+	});
+	mcount = mcount.toLocaleString();
+}
+
+const xp = user?.user ? getXP(user.user) : 0;
+const level = getLevel(xp);
+const xpToCurrent = getXPToNextLevel(level - 1);
+const xpToNext = getXPToNextLevel(level);
+---
+
+<header id="top" data-loggedin={loggedIn}>
+	<div id="mobile-menu-background" onclick="clearMobileMenu()"></div>
+	<button id="mobile-menu-button" aria-label="open menu">—</button>
+	<Signature />
+	<hr />
+	<div class="top-item nav-skip">
+		<a href="#main">skip navigation</a>
+	</div>
+	<div id="top-items">
+		<div class="top-item">
+			<a href="/search" onclick="return setMobileMenuTab(this)">explore</a
+			>
+			<div>
+				<div id="search">
+					<input
+						id="search-input"
+						type="search"
+						placeholder="search games..."
+						aria-placeholder="search for games"
+					/>
+					<button
+						id="search-button"
+						class="icon-button"
+						aria-label="search game"
+					>
+						<Icon
+							icon="material-symbols:search"
+							width="18"
+							client:idle
+						/>
+					</button>
+				</div>
+
+				<div class="top-list">
+					<h3>browse</h3>
+					<div class="top-list">
+						<!-- <a href="/explore/hot">hot and trending</a> -->
+						<a href="/explore/top">top rated</a>
+						<a href="/explore/playtime">most grinded</a>
+					</div>
+					<div class="top-list">
+						<a href="/explore/faves">top favorited</a>
+						<a href="/explore/new">fresh new</a>
+					</div>
+					<div class="top-list">
+						<a href="/explore/recent">recently updated</a>
+						<a href="/explore/random">random</a>
+					</div>
+
+					<h3>pick me a game</h3>
+					<!-- <a href="/">daily game</a> -->
+					<a href="/explore/luck">i'm feeling lucky</a>
+				</div>
+			</div>
+		</div><span>{" · "}</span>
+		<!-- <div class="top-item">
+			<a href="#" onclick="return setMobileMenuTab(this)">quest</a>
+			<div>
+				<div class="top-list">
+					<h3>quests</h3>
+					<a href="/">my quest</a>
+					<a href="/">weekly quest</a>
+				</div>
+				<div class="top-list">
+					<h3>bounties</h3>
+					<a href="/">bountied games</a>
+				</div>
+			</div>
+		</div><span>{" · "}</span>-->
+		<div class="top-item">
+			<a href="#" onclick="return setMobileMenuTab(this)">social</a>
+			<div>
+				<div class="top-list">
+					<h3>hang out</h3>
+					<a href="/chat">global chatrooms</a>
+					<a href="/discord" target="_blank"
+						>official discord server</a
+					>
+					<!-- <a href="/">official guilded server</a> -->
+				</div>
+
+				<div class="top-list">
+					<h3>forums</h3>
+					<a>coming soon...</a>
+				</div>
+			</div>
+		</div><span>{" · "}</span>
+		<div class="top-item">
+			<a href="#" onclick="return setMobileMenuTab(this)">extras</a>
+			<div>
+				<div class="top-list">
+					<h3>our identity</h3>
+					<a href="/about">about</a>
+					<a href="/stats">site statistics</a>
+					<a href="/docs">help & faq</a>
+
+					<h3>for developers</h3>
+					<a href="/dev">why galaxy?</a>
+					<a href="/docs/dev">iframe api docs</a>
+
+					<h3>galaxy labs</h3>
+					<a href="/cluster">galaxy cluster</a>
+				</div>
+
+				<div class="top-list">
+					<h3>legal stuff</h3>
+					<a href="/rules">site rules</a>
+					<a href="/terms">terms of service</a>
+					<a href="/privacy">privacy policy</a>
+					<a href="/cookies">cookie policy</a>
+
+					<h3>contribute</h3>
+					<!-- <a href="/request">request a game</a> -->
+					<a
+						href="https://gitlab.com/yhvr/galaxy-astro"
+						target="_blank">source code</a
+					>
+					<a
+						href="https://gitlab.com/yhvr/galaxy-astro/-/issues"
+						target="_blank">issue tracker</a
+					>
+					<a href="https://patreon.com/Yhvr" target="_blank"
+						>donate on patreon</a
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{
+		diffUser?.user && diffUser?.user.banned !== false && (
+			<>
+				·{" "}
+				<div class="top-item">
+					<a href="/banned">you've been banned. click here</a>
+				</div>
+			</>
+		)
+	}
+
+	{
+		loggedIn ? (
+			<div id="profile-board" class="top-item">
+				{/* prettier-ignore */}
+				<a href={`/user/${userId}`} class="masked-link floatright" onclick="return setMobileProfile()">
+					{mcount !== "0" && (
+						<span id="notification" class="notif">
+							{mcount}
+						</span>
+					)}{username}<img class="profile-pic inline" src={convertFormat(
+							"/pfp/medium/",
+							userId,
+							pfpTimestamp
+						)} alt="" />
+				</a>
+				<div>
+					<a id="progress" href="/level">
+						<span class="level">
+							<h3>level</h3>{" "}
+							<span>{level.toLocaleString("en-US")}</span>
+						</span>
+						<span class="xp" aria-hidden="true">
+							<span>{`${(xp - xpToCurrent).toLocaleString(
+								"en-US"
+							)} / ${(xpToNext - xpToCurrent).toLocaleString(
+								"en-US"
+							)}`}</span>{" "}
+							<h3>xp</h3>
+						</span>
+						<p class="screenreader">
+							{Math.floor(xp - xpToCurrent)} out of{" "}
+							{Math.floor(xpToNext - xpToCurrent)} xp to the next
+							level
+						</p>
+						<div
+							class="bar"
+							style={`--progress: ${
+								((xp - xpToCurrent) /
+									(xpToNext - xpToCurrent)) *
+								100
+							}%`}
+						/>
+					</a>
+					<div class="top-list">
+						<h3>games</h3>
+						<a href="/favorites">my favorites</a>
+						<a href="/playtime">my playtime</a>
+
+						<h3>create</h3>
+						<a href="/manage">dashboard</a>
+						<a href="/publish">publish a game</a>
+
+						{diffUser.user.modLevel >= 1 && (
+							<>
+								<h3>administrator</h3>
+								<a href="/admin">admin</a>
+								<a href="/admin/housekeeping">housekeeping</a>
+							</>
+						)}
+					</div>
+					<div class="top-list">
+						{diffUser.needsVerification ? (
+							<>
+								<h3>forgot something?</h3>
+								<a href={`/signedup`}>verify email</a>
+							</>
+						) : (
+							""
+						)}
+
+						<h3>me</h3>
+						<a href={`/user/${userId}`}>view profile</a>
+						{/* prettier-ignore */}
+						<a href="/inbox"><span>mailbox</span>{
+							mcount !== "0" && (
+								<span class="notif">{mcount}</span>
+							)}
+						</a>
+
+						<h3>preferences</h3>
+						<a href="/you">my account</a>
+						<a href="/themes">theme picker</a>
+						<a href="/filters">site-wide filters</a>
+					</div>
+					<hr />
+					<div class="top-list" style="display:block;">
+						{/* prettier-ignore */}
+						<a href="/" onclick="window.location.href = '/api/users/logout'; return false">log out</a>
+					</div>
+				</div>
+			</div>
+		) : (
+			/*<span class="floatright">
+				<a href="/signup" target="_blank">
+					No account? Sign up!
+				</a>
+				Log in:
+				<input id="loginEmail" type="email" placeholder="Email" />
+				<input
+					id="loginPassword"
+					type="password"
+					placeholder="Password"
+				/>
+			</span>*/ <div id="profile-board" class="top-item">
+				{/* prettier-ignore */}
+				<a href="#" onclick="return setMobileProfile()">log in</a>
+				<div>
+					<div class="top-list">
+						<h3>log me in</h3>
+						<input
+							id="loginEmail"
+							type="email"
+							placeholder="email or username"
+						/>
+						<input
+							id="loginPassword"
+							type="password"
+							placeholder="password"
+						/>
+						{/* prettier-ignore */}
+						<a href="#" onclick="attemptLogin(); return false">log in</a>
+						{/* prettier-ignore */}
+						<a href="#" onclick="attemptReset(); return false;">forgot password</a>
+
+						<h3>don't have an account?</h3>
+						<a href="/signup">sign up</a>
+						<h3>preferences</h3>
+						<a href="/themes">theme picker</a>
+						<a href="/filters">site-wide filters</a>
+					</div>
+				</div>
+			</div>
+		)
+	}
+</header>
+<script>
+	import { alert, post } from "../libgalaxy";
+
+	const header = document.getElementById("top");
+	const isLoggedIn = header.getAttribute("data-loggedin") === "true";
+
+	window.addEventListener("scroll", () => {
+		if (window.scrollY > 0) header.classList.add("scrolled");
+		else header.classList.remove("scrolled");
+	});
+
+	// TODO: make this work only when the login thingy is actually shown
+	window.addEventListener("keydown", (e: KeyboardEvent) => {
+		if (e.key === "Enter" && !isLoggedIn) {
+			// @ts-expect-error
+			window.attemptLogin();
+		}
+	});
+
+	// If it ain't broke, don't fix it
+	// @ts-expect-error
+	window.attemptLogin = async function () {
+		// Shut up, I know it'll work! I'm smarter than you!
+		// @ts-expect-error
+		const email = document.getElementById("loginEmail").value;
+		// @ts-expect-error
+		const password = document.getElementById("loginPassword").value;
+
+		if (email && password) {
+			const res = await post("/api/users/login", {
+				email,
+				password,
+			});
+			if (res.name) {
+				window.location.reload();
+			}
+		}
+	};
+
+	// @ts-expect-error
+	window.attemptReset = async function () {
+		// @ts-expect-error
+		const email = document.getElementById("loginEmail").value;
+
+		if (email) {
+			const res = await post("/api/users/reset/start", { email });
+			if (res.done) alert.success("Check your email inbox!");
+		} else {
+			alert.error("Please specify an email or username");
+		}
+	};
+
+	document.getElementById("search-button").addEventListener("click", () => {
+		const input = (
+			document.getElementById("search-input") as HTMLInputElement
+		).value;
+		location.href = input ? `/search?q=${input}` : "/search";
+	});
+
+	document.getElementById("search").addEventListener("keypress", e => {
+		if (e.key === "Enter") document.getElementById("search-button").click();
+	});
+
+	let mobileMenu = false,
+		mobileProfile = false;
+	let activeTab: HTMLElement = null;
+
+	document
+		.getElementById("mobile-menu-button")
+		.addEventListener("click", () => {
+			// @ts-expect-error
+			if (mobileProfile) window.setMobileProfile();
+			mobileMenu = !mobileMenu;
+			document
+				.getElementById("top")
+				.classList.toggle("mobile-menu", mobileMenu);
+			if (!mobileMenu) {
+				activeTab?.parentElement.classList.remove("active");
+			} else {
+				// @ts-expect-error
+				window.setMobileMenuTab(
+					document
+						.getElementById("top-items")
+						.querySelector(".top-item > a")
+				);
+				document
+					.getElementById("top-items")
+					.querySelector(".top-item > a")
+					.focus();
+			}
+		});
+
+	// @ts-expect-error
+	window.setMobileMenuTab = function (tab: HTMLElement | MouseEvent) {
+		// @ts-expect-error
+		if (tab.currentTarget) tab = tab.currentTarget;
+		if (
+			window.matchMedia("screen and (hover: none), (max-width: 720px)")
+				?.matches
+		) {
+			activeTab?.parentElement.classList.remove("active");
+			activeTab = tab as HTMLElement;
+			activeTab.parentElement.classList.add("active");
+
+			return false;
+		}
+		return true;
+	};
+
+	// @ts-expect-error
+	window.setMobileProfile = function () {
+		if (
+			window.matchMedia("screen and (hover: none), (max-width: 720px)")
+				?.matches
+		) {
+			if (mobileMenu)
+				document.getElementById("mobile-menu-button").click();
+			mobileProfile = !mobileProfile;
+			document
+				.getElementById("top")
+				.classList.toggle("mobile-profile", mobileProfile);
+
+			return false;
+		}
+		return true;
+	};
+
+	// @ts-expect-error
+	window.clearMobileMenu = function () {
+		if (
+			window.matchMedia("screen and (hover: none), (max-width: 720px)")
+				?.matches
+		) {
+			if (mobileMenu)
+				document.getElementById("mobile-menu-button").click();
+			// @ts-expect-error
+			if (mobileProfile) window.setMobileProfile();
+		}
+		return true;
+	};
+</script>
+
+<style>
+	#top {
+		line-height: 48px;
+		width: calc(100% - calc(var(--global-padding) * 2));
+		height: 48px;
+		padding: 0px var(--global-padding);
+		position: sticky;
+		top: 0px;
+		z-index: 100;
+
+		/*background: var(--background-2);*/
+		color: var(--color-0);
+		cursor: default;
+
+		transition:
+			background 0.2s,
+			box-shadow 0.2s;
+	}
+
+	#top::before {
+		content: "";
+		position: absolute;
+		top: -60px;
+		height: 48px;
+		left: 0;
+		right: 0;
+		z-index: -1;
+
+		background: var(--background-2);
+
+		transition:
+			top 0.2s,
+			box-shadow 0.2s;
+	}
+
+	#top.scrolled::before {
+		top: 0;
+		box-shadow: 0 -10px 10px 10px #000;
+		transition:
+			top 0.3s,
+			box-shadow 0.3s;
+	}
+
+	#top > hr {
+		display: inline-block;
+
+		width: 1px;
+		height: 16px;
+		margin: 0 5px;
+
+		border: none;
+	}
+	#top-items {
+		display: inline-block;
+		position: relative;
+	}
+	#top-items span {
+		position: relative;
+		z-index: -1;
+	}
+	.top-item {
+		display: inline-block;
+		position: static;
+		margin: 0 -7px;
+		height: 26px;
+		min-width: 0;
+		z-index: 1;
+		border-radius: 3px 3px 0 0;
+
+		line-height: 26px;
+
+		transition: all 0.3s;
+	}
+	.top-item:hover,
+	.top-item:focus-within {
+		height: 30px;
+		z-index: 2;
+
+		color: var(--color-active-0);
+		background: var(--background-active-2);
+		box-shadow: 1px 0 8px #0007;
+
+		line-height: 30px;
+	}
+	#top.scrolled .top-item:hover,
+	#top.scrolled .top-item:focus-within {
+		background: var(--background-active-3);
+		box-shadow: none;
+	}
+	.top-item > a {
+		padding: 0 12px;
+		display: block;
+		color: var(--color-0);
+		text-decoration: none;
+		border-radius: 3px 3px 0 0;
+	}
+	.top-item > a:hover,
+	.top-item > a:focus-visible {
+		color: var(--color-active-0);
+		background: var(--background-active-4);
+		text-decoration: 1.25px solid underline;
+		outline: none;
+		transition:
+			background 0.3s,
+			color 0.3s;
+	}
+	.top-item > div {
+		position: absolute;
+		left: -10px;
+		top: 36px;
+		padding: 0 3px 3px 3px;
+		width: max-content;
+		height: fit-content;
+
+		background: var(--background-3);
+		box-shadow: 1px 0 8px #0007;
+		border-radius: 3px;
+
+		opacity: 0;
+		pointer-events: none;
+
+		transition:
+			top 0.3s,
+			opacity 0.3s,
+			padding 0.3s;
+	}
+	.top-item:hover > div,
+	.top-item:focus-within > div {
+		top: 38px;
+		padding: 3px;
+		opacity: 1;
+		pointer-events: all;
+	}
+	.top-item hr {
+		width: auto;
+		height: 1px;
+		margin: 4px 12px;
+		border: none;
+		background: var(--color-0);
+		opacity: 0.1;
+	}
+
+	.top-list {
+		display: inline-block;
+		vertical-align: top;
+	}
+	.top-list > h3 {
+		padding: 3px 12px 0 12px;
+		display: block;
+		font-weight: normal;
+		height: 20px;
+		line-height: 20px;
+		font-size: 12px;
+		margin-block: 0;
+		color: var(--color-4);
+	}
+	.top-list > a {
+		padding: 0 12px;
+		display: block;
+		height: 26px;
+		line-height: 26px;
+		color: var(--color-0);
+		text-decoration: none;
+		border-radius: 3px;
+	}
+	.top-list > a:before {
+		content: ">\00a0";
+		opacity: 0.5;
+		display: inline-block;
+	}
+	.top-list > a:hover,
+	.top-list > a:focus-visible {
+		color: var(--color-active-0);
+		background: var(--background-active-5);
+		text-decoration: 1.25px solid underline;
+		outline: none;
+		transition:
+			background 0.3s,
+			color 0.3s;
+	}
+	.top-list > a:not([href]) {
+		background: transparent;
+		color: var(--color-4);
+		cursor: not-allowed;
+	}
+
+	#search {
+		display: flex;
+		flex-direction: row;
+		gap: 2px;
+		margin-bottom: 5px;
+	}
+	#search button {
+		margin: 0;
+	}
+	.top-list > input,
+	#search-input {
+		padding: 0 12px;
+		display: block;
+		height: 26px;
+		line-height: 26px;
+		font-size: 14px;
+		font-family: var(--content-font);
+		background: var(--background-1);
+		color: var(--color-0);
+		outline: 1px solid #7770;
+		border-radius: 3px;
+	}
+	#search-input {
+		display: inline-block;
+		flex: 1 1 100px;
+	}
+	#search-input::-webkit-search-cancel-button {
+		appearance: none;
+		content: "✕";
+		font-size: 14px;
+		color: var(--color-4);
+	}
+	.top-list > input:first-child,
+	#search-input:first-child {
+		margin-top: 0;
+	}
+	.top-list > input:hover,
+	#search-input:hover,
+	.top-list > input:focus,
+	#search-input:focus {
+		outline: 1px solid var(--color-active-4);
+		transition: outline 0.3s;
+	}
+
+	#search-button {
+		width: 36px;
+	}
+	#search-button svg {
+		vertical-align: text-top;
+	}
+
+	.top-list > input + input {
+		margin-top: 2px;
+	}
+
+	#progress {
+		display: block;
+		padding: 5px 12px 10px 12px;
+		line-height: 24px;
+		color: var(--color-0);
+		border-radius: 3px;
+		text-decoration: none;
+	}
+	#progress:hover,
+	#progress:focus-visible {
+		color: var(--color-active-0);
+		background: var(--background-active-5);
+		transition:
+			background 0.3s,
+			color 0.3s;
+		outline: none;
+	}
+	#progress :global(h3) {
+		display: inline;
+		font-size: 12px;
+		font-weight: normal;
+		margin-block: 0;
+		color: var(--color-4);
+	}
+	:is(#progress:hover, #progress:focus-visible) :global(h3) {
+		color: var(--color-active-1);
+		transition: color 0.3s;
+	}
+	#progress > .xp {
+		float: right;
+	}
+	#progress > .bar {
+		position: relative;
+		height: 4px;
+		border-radius: 2px;
+		background: #0003;
+		overflow: hidden;
+	}
+	#progress > .bar::before {
+		content: "";
+		position: absolute;
+		display: block;
+		left: 0;
+		width: 0;
+		max-width: 100%;
+		top: 0;
+		bottom: 0;
+		border-radius: 2px;
+		background: var(--color-active-1);
+		background: repeating-linear-gradient(
+			-45deg,
+			var(--color-active-2) 0 10px,
+			var(--color-active-1) 10px 20px
+		);
+		background-size: 28px 100%;
+		transition: width 0.25s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+		animation: repeating-xp-animation 2s linear infinite;
+	}
+	#profile-board:hover #progress > .bar::before,
+	#profile-board:focus-within #progress > .bar::before {
+		width: var(--diff);
+		transition: width 0.5s 0.1s cubic-bezier(0, 1.25, 0.5, 1);
+	}
+
+	@keyframes repeating-xp-animation {
+		from {
+			background-position: 0 0;
+		}
+		to {
+			background-position: -28px 0;
+		}
+	}
+
+	#progress > .bar::after {
+		content: "";
+		position: absolute;
+		display: block;
+		left: 0;
+		width: 0;
+		max-width: 100%;
+		top: 0;
+		bottom: 0;
+		border-radius: 2px;
+		background: var(--color-active-0);
+		box-shadow:
+			0 0 0 1px #0003,
+			0 0 0 1px var(--background-3);
+		transition: width 0.3s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+	}
+	#profile-board:hover #progress > .bar::after,
+	#profile-board:focus-within #progress > .bar::after {
+		width: var(--progress);
+		transition: width 0.5s cubic-bezier(0, 1.25, 0.5, 1);
+	}
+	#progress:hover > .bar::after,
+	#progress:focus > .bar::after {
+		box-shadow:
+			0 0 0 1px #0003,
+			0 0 0 1px var(--background-active-5);
+		transition:
+			width 0.5s cubic-bezier(0, 1.25, 0.5, 1),
+			box-shadow 0.5s;
+	}
+
+	#progress > :global(.current) {
+		display: block;
+		margin-top: 3px;
+		height: 20px;
+	}
+
+	#progress > :global(.current h3) {
+		font-family: var(--content-font);
+	}
+
+	#progress > :global(.current > .timer) {
+		float: left;
+	}
+
+	#progress > :global(.current > .diff) {
+		float: right;
+	}
+
+	.top-item.nav-skip {
+		position: relative;
+		left: -10px;
+		opacity: 0;
+		max-width: 0px;
+		white-space: nowrap;
+		pointer-events: none;
+		transition:
+			opacity 0.3s,
+			max-width 0.3s;
+		border-radius: 3px;
+	}
+	.top-item.nav-skip:focus-within {
+		max-width: 200px;
+		opacity: 1;
+		pointer-events: all;
+	}
+	.top-item.nav-skip > a {
+		border-radius: 3px;
+	}
+
+	#profile-board {
+		float: right;
+		margin-top: 11px;
+		margin-right: 0px;
+	}
+	#profile-board:hover,
+	#profile-board:focus-within {
+		margin-top: 9px;
+	}
+	#profile-board > div {
+		left: auto;
+		right: calc(var(--global-padding) - 3px);
+	}
+
+	#profile-board .profile-pic {
+		width: 26px;
+		height: 26px;
+		vertical-align: -8px;
+		margin: 0 -12px 0 8px;
+		border-radius: 3px;
+		transition: all 0.2s;
+	}
+	#profile-board:hover .profile-pic,
+	#profile-board:focus-within .profile-pic {
+		width: 30px;
+		height: 30px;
+		vertical-align: -10px;
+		margin: 0 -12px 0 12px;
+		border-radius: 0 3px 0 0;
+	}
+
+	.notif {
+		height: 24px;
+		min-width: 24px;
+		background: var(--background-red-1);
+		display: inline-block;
+		text-align: center;
+		border-radius: 25px;
+		line-height: 24px;
+		color: #eee;
+	}
+	.notif:not(:first-child) {
+		margin-left: 8px;
+	}
+	.notif:not(:last-child) {
+		margin-right: 8px;
+	}
+
+	#mobile-menu-button {
+		display: none;
+		position: relative;
+		background: transparent;
+		box-shadow: none;
+		transition: all 0.3s;
+		text-decoration: none !important;
+		font-size: 15px;
+		transition: color 0.3s;
+	}
+	.mobile-menu #mobile-menu-button {
+		color: transparent;
+	}
+	#mobile-menu-button:hover {
+		color: var(--color-active-0);
+		background: var(--background-active-4);
+		box-shadow: 1px 0 8px #0007;
+	}
+
+	#mobile-menu-button::before,
+	#mobile-menu-button::after {
+		content: "—";
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		position: absolute;
+		pointer-events: none;
+		transition:
+			transform 0.3s,
+			color 0.3s;
+		color: var(--color-0);
+	}
+	#mobile-menu-button::before {
+		transform: translateY(-4px);
+		color: var(--color-0);
+	}
+	#mobile-menu-button::after {
+		transform: translateY(4px);
+		color: var(--color-0);
+	}
+	.mobile-menu #mobile-menu-button {
+		color: transparent;
+	}
+	.mobile-menu #mobile-menu-button::before {
+		transform: rotate(45deg) translateX(0.55px);
+		transition: transform 0.5s;
+	}
+	.mobile-menu #mobile-menu-button::after {
+		transform: rotate(-45deg) translateX(-0.55px);
+		transition: transform 0.5s;
+	}
+
+	#mobile-menu-background {
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.3s;
+	}
+
+	@media (max-width: 720px) {
+		.top-list {
+			display: block;
+		}
+	}
+
+	@media screen and (hover: none), (max-width: 720px) {
+		#mobile-menu-background {
+			position: fixed;
+			z-index: -10;
+			top: 48px;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background: var(--background-1);
+		}
+
+		.mobile-menu #mobile-menu-background,
+		.mobile-profile #mobile-menu-background {
+			opacity: 0.8;
+			pointer-events: all;
+			transition: opacity 0.5s;
+		}
+
+		#mobile-menu-button {
+			display: inline-block;
+		}
+
+		#top.mobile-menu::before,
+		#top.mobile-profile::before {
+			top: 0;
+			box-shadow: 0 -10px 10px 10px #000;
+			transition:
+				top 0.3s,
+				box-shadow 0.3s;
+		}
+
+		#top-items {
+			position: absolute;
+			top: -48px;
+			left: 0;
+			right: 0;
+			padding: 4px var(--global-padding) 0 var(--global-padding);
+			z-index: -2;
+			background: var(--background-2);
+			transition:
+				top 0.2s,
+				box-shadow 0.2s;
+			height: 44px;
+		}
+		#top.scrolled:not(.mobile-menu) #top-items {
+			top: 0px;
+		}
+
+		.mobile-menu #top-items {
+			top: 48px;
+			transition:
+				top 0.4s,
+				box-shadow 0.4s;
+			box-shadow: 0 -10px 10px 10px #000;
+		}
+
+		#top-items .top-item {
+			position: static;
+			height: 36px;
+		}
+		#top-items .top-item:active {
+			z-index: 1;
+		}
+
+		#top-items .top-item > a {
+			padding: 0 12px;
+			display: block;
+			color: var(--color-0);
+			text-decoration: none;
+			border-radius: 3px 3px 0 0;
+			position: relative;
+			height: 36px;
+			line-height: 32px;
+		}
+		#top-items .top-item.active > a {
+			color: var(--color-active-0);
+			background: var(--background-active-4);
+			text-decoration: 1.25px solid underline;
+			outline: none;
+			transition: background 0.3s;
+		}
+
+		.top-item > div,
+		.top-item:hover > div,
+		.top-item:focus-within > div {
+			left: -3px;
+			top: 100%;
+			max-height: calc(100vh - 250px);
+			overflow-y: auto;
+			width: calc(100% - var(--global-padding) * 2);
+			padding: 3px var(--global-padding) 10px var(--global-padding);
+			margin-left: 3px;
+			border-radius: 0 0 3px 3px;
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		.top-item.active > div,
+		.mobile-profile #profile-board > div {
+			padding: 10px var(--global-padding);
+			opacity: 1;
+			pointer-events: all;
+		}
+
+		#profile-board {
+			border-radius: 3px;
+			position: static;
+		}
+		#profile-board > a {
+			border-radius: 3px;
+		}
+		#profile-board:hover .profile-pic,
+		.mobile-profile #profile-board .profile-pic {
+			width: 30px;
+			height: 30px;
+			vertical-align: -10px;
+			margin: 0 -12px 0 12px;
+			border-radius: 0 3px 3px 0;
+			transition: all 0.3s;
+		}
+
+		#profile-board:not(:hover):focus-within {
+			top: 11px;
+			height: 26px;
+			line-height: 26px;
+			background: transparent;
+			box-shadow: none;
+		}
+
+		.mobile-profile #profile-board,
+		.mobile-profile #profile-board:focus-within {
+			margin-top: 9px;
+			height: 30px;
+			background: transparent;
+			background: var(--background-active-3);
+		}
+
+		#profile-board > div {
+			right: 0px;
+			max-height: calc(100vh - 202px);
+			transition:
+				top 0.4s,
+				padding 0.3s,
+				opacity 0.3s;
+			text-align: right;
+			z-index: -1;
+		}
+
+		#profile-board > div > * {
+			text-align: left;
+		}
+		.mobile-profile #profile-board > div {
+			padding: 10px var(--global-padding);
+		}
+
+		#top:not(.mobile-profile) #progress > .bar::after {
+			width: 0;
+			transition: width 0.3s cubic-bezier(0.6, 0.04, 0.98, 0.335);
+		}
+		.mobile-profile #progress > .bar::after {
+			width: var(--progress);
+			transition: width 1.5s cubic-bezier(0.25, 1.6, 0, 1);
+		}
+
+		:not(.scrolled, .mobile-profile, .mobile-menu) #profile-board > div {
+			top: calc(100% - 39px);
+			transition:
+				top 0.2s,
+				padding 0.3s,
+				opacity 0.3s;
+		}
+	}
+</style>

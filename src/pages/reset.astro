@@ -1,0 +1,67 @@
+---
+import ErrorResponse from "../components/ErrorResponse.astro";
+import Layout from "../layouts/Layout.astro";
+import { User } from "../models/user";
+import { convertFormat } from "../libgalaxy";
+
+let correct = true;
+
+const token = Astro.url.searchParams.get("key");
+if (token == null) correct = false;
+
+const user = await User.findOne({
+	passwordReset: token,
+	passwordResetExpiry: { $gt: Date.now() },
+});
+if (user == null) correct = false;
+---
+
+<Layout title="galaxy - password reset">
+	<main id="main">
+		{
+			correct ? (
+				<>
+					<h1>
+						resetting password for
+						<img
+							src={convertFormat(
+								"/pfp/medium/",
+								user.id,
+								user.pfpTimestamp
+							)}
+							width="32"
+						/>{" "}
+						<b>{user.name}</b>
+					</h1>
+					<input
+						type="password"
+						placeholder="New password"
+						id="password"
+					/>
+					<button onclick="newPassword()">Submit</button>
+				</>
+			) : (
+				<ErrorResponse status={401} title={["damn"]}>
+					<p>that's not a valid password reset token.</p>
+				</ErrorResponse>
+			)
+		}
+	</main>
+</Layout>
+
+<script>
+	import { post } from "../libgalaxy";
+
+	// @ts-expect-error
+	window.newPassword = async function () {
+		// @ts-expect-error
+		const password = document.getElementById("password").value;
+
+		const res = await post("/api/users/reset/reset", {
+			token: new URLSearchParams(location.search).get("key"),
+			password,
+		});
+
+		if (res.done) window.location.href = "/";
+	};
+</script>

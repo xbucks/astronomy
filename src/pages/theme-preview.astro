@@ -1,0 +1,159 @@
+---
+const theme = Astro.url.searchParams.get("t");
+
+const css = `:root { --accent-hue: ${
+	Astro.cookies.get("t-accent").value ?? Math.random() * 360
+}deg; }`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/png" href="/brand/favicon.png" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>galaxy - theme preview</title>
+		<link rel="stylesheet" href={`/styles/themes/${theme}.css`} />
+		<style set:text={css}></style>
+	</head>
+	<body>
+		<header id="top">
+			<span>
+				<a class="galaxy-signature"
+					>galaxy<span class="beta-tag">BETA</span></a
+				>
+			</span>
+			<a>explore</a> ·
+			<a>quest</a> ·
+			<a>social</a> ·
+			<a>extras</a>
+		</header>
+		<div id="secret">
+			<h1>hey you found the secret page</h1>
+			This page is used by the <a href="/themes">theme picker</a> to display
+			theme previews to you.
+			<br />
+			Try adding <code>?t=[theme name]</code> to the end of the URL to preview
+			specific themes.
+		</div>
+	</body>
+</html>
+
+<style is:global>
+	@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Roboto&family=Noto+Emoji&family=Inter&display=swap");
+
+	:root {
+		--global-padding: max(min(10vw, calc(100vw - 800px)), 12px);
+
+		--header-font: "JetBrains Mono", "Noto Emoji", monospace;
+		--content-font: "Inter", "Noto Emoji", sans-serif;
+
+		box-shadow: inset 0 2px 4px #0007;
+	}
+
+	body {
+		margin: 0;
+		background: var(--background-1);
+		color: var(--color-1);
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+
+		font-family: var(--content-font);
+		font-size: 14px;
+
+		touch-action: manipulation;
+		overflow: hidden;
+	}
+
+	#top {
+		line-height: 48px;
+		width: calc(100% - calc(var(--global-padding) * 2));
+		height: 48px;
+		padding: 0px var(--global-padding);
+		position: sticky;
+		top: 0px;
+		z-index: 100;
+
+		/*background: var(--background-2);*/
+		color: var(--color-0);
+		cursor: default;
+		white-space: nowrap;
+
+		transition:
+			background 0.2s,
+			box-shadow 0.2s;
+	}
+
+	#top > a {
+		padding: 0 12px;
+		margin: 0 -7px;
+	}
+
+	#secret {
+		padding: 0px var(--global-padding);
+		margin-top: 320px;
+	}
+
+	#secret > h1 {
+		font-family: var(--header-font);
+	}
+
+	#secret > a {
+		color: var(--color-2);
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	/* ripped from Signature */
+	.galaxy-signature {
+		color: var(--color-0);
+		font-size: 14px;
+
+		text-decoration: none;
+		font-weight: bold;
+		font-family: var(--header-font);
+		transition: text-shadow 0.5s;
+	}
+	.beta-tag {
+		display: inline-block;
+
+		height: 16px;
+		margin: 0 5px;
+		padding: 1px 3px 0 3px;
+
+		background: var(--color-0);
+		color: var(--background-2);
+
+		font-weight: bold;
+		font-family: var(--content-font);
+		line-height: 16px;
+		font-size: 12px;
+		transition:
+			color 0.5s,
+			box-shadow 0.5s;
+	}
+	.galaxy-signature:hover,
+	.galaxy-signature:focus-visible {
+		color: var(--background-2);
+		text-shadow:
+			0 0 5px var(--color-0),
+			0 0 5px var(--color-0),
+			0 0 5px var(--color-0),
+			0 0 5px var(--color-0),
+			0 0 5px var(--color-0);
+		outline: none;
+		transition: color 0.5s;
+	}
+	.galaxy-signature:hover .beta-tag,
+	.galaxy-signature:focus-visible .beta-tag {
+		background: var(--background-2);
+		color: var(--color-0);
+		text-shadow: none;
+		box-shadow:
+			0 0 5px var(--color-0),
+			0 0 5px var(--color-0);
+		transition: background 0.5s;
+	}
+</style>

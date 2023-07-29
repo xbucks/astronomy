@@ -1,0 +1,87 @@
+---
+import DetailedGameCard from "../components/DetailedGameCard.svelte";
+import type { ExploreType } from "../helper/explore";
+import GameList from "../components/GameList.svelte";
+import IndexHeader from "../components/IndexHeader.astro";
+import Layout from "../layouts/Layout.astro";
+import { explore } from "../helper/explore";
+
+const perList = 30;
+const sorts: ExploreType[] = [
+	"recent",
+	"top",
+	"playtime",
+	"new",
+	"faves",
+	"random",
+];
+
+const filter = Astro.cookies.get("filters").value;
+
+// for posterity: random is the cool kid of the group.
+const [recent, top, playtime, newG, faves, random] = await Promise.all(
+	sorts.map(sort => explore(sort, 1, perList, filter))
+);
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+---
+
+<Layout
+	title="galaxy"
+	user={{ user, loggedIn, needsVerification }}
+	ogp={{
+		largeImage: true,
+		image: "/brand/Banner.png",
+		title: "galaxy.click",
+	}}
+>
+	<IndexHeader loggedIn={loggedIn} />
+
+	<main id="main">
+		<div style="margin-top: 15px;">
+			<GameList
+				client:visible
+				link="/explore/recent"
+				title="recently updated"
+				games={recent.games}
+			/>
+			<GameList
+				client:visible
+				link="/explore/top"
+				title="top rated"
+				games={top.games}
+			/>
+			<!-- <GameList
+				client:visible
+				link="/explore/hot"
+				title="hot and trending"
+				games={hot.games}
+			/> -->
+			<GameList
+				client:visible
+				link="/explore/playtime"
+				title="most grinded"
+				games={playtime.games}
+			/>
+			<GameList
+				client:visible
+				link="/explore/new"
+				title="fresh new"
+				games={newG.games}
+			/>
+			<GameList
+				client:visible
+				link="/explore/faves"
+				title="top favorited"
+				games={faves.games}
+			/>
+			<GameList
+				client:visible
+				link="/explore/random"
+				title="random"
+				games={random.games}
+			/>
+		</div>
+	</main>
+</Layout>
+<DetailedGameCard client:load />

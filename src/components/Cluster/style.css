@@ -1,0 +1,29 @@
+.sidebar {
+	display: grid;
+	grid-template-rows: 74px 1fr 74px;
+	height: 100vh;
+}
+
+.sidebar-btn {
+	width: calc(100% - 10px);
+	height: 64px;
+	padding: 0;
+	margin: 5px;
+
+	appearance: none;
+	border: solid thin #888;
+	border-radius: 10px;
+	color: #888;
+	background: var(--background-2);
+}
+
+.new-btn {
+	font-size: 50px;
+	line-height: 64px;
+	grid-row: 2;
+	margin-top: calc((100vh - (74px * 2)) / 2);
+}
+
+.leave-btn {
+	grid-row: 3;
+}

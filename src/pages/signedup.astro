@@ -1,0 +1,82 @@
+---
+import Form from "../components/Form.astro";
+import Layout from "../layouts/Layout.astro";
+
+// Commented out to allow for signing up from any device
+// if (!Astro.cookies.has("token")) return Astro.redirect("/signup");
+
+// If the user is already verified they shouldn't be here
+const { needsVerification, loggedIn } = Astro.locals.auth;
+if (!needsVerification && loggedIn) return Astro.redirect("/");
+---
+
+<Layout title="galaxy - yippee :)">
+	<main id="main">
+		<h1>welcome to galaxy</h1>
+		<Form>
+			<p>thanks for making an account. we promise you won't regret it!</p>
+			<p>
+				please check your email <b>(including your spam folder)</b> to
+				see if you got the verification code.
+			</p>
+			<p>
+				it may take several minutes for the email to arrive&mdash;sorry
+				about that.
+			</p>
+			<hr />
+			<div data-label="email verification code">
+				<input
+					type="text"
+					id="email-code"
+					placeholder="ABCdefGHIjklMNOpqrSTUvwxYZ123"
+				/>
+			</div>
+			<hr />
+			<div>
+				<button onclick="verify()">verify</button>
+				<button onclick="resend()">resend code</button>
+			</div>
+		</Form>
+	</main>
+</Layout>
+<script>
+	import { alert, post } from "../libgalaxy";
+
+	// @ts-expect-error
+	window.verify = async function () {
+		const input = document.getElementById("email-code") as HTMLInputElement;
+		const res = await post("/api/users/verify", { code: input.value });
+		if (res._resCode === 200) {
+			alert.success("Welcome to Galaxy!");
+			setTimeout(() => {
+				window.location.href = "/";
+			}, 2000);
+		}
+	};
+
+	// @ts-expect-error
+	window.resend = async function () {
+		const res = await fetch("/api/users/resend", {
+			method: "POST",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+		if (res.status === 200) {
+			alert.success("Resent!");
+		}
+	};
+
+	const code = new URLSearchParams(window.location.search).get("code");
+	if (code) {
+		(document.getElementById("email-code") as HTMLInputElement).value =
+			code;
+		// @ts-ignore
+		window.verify();
+	}
+</script>
+<style>
+	p {
+		margin: 0;
+	}
+</style>

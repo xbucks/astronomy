@@ -1,0 +1,76 @@
+---
+import { Game } from "../../models/game";
+import GameEditor from "../../components/GameEditor.svelte";
+import Layout from "../../layouts/Layout.astro";
+
+const { editId } = Astro.params;
+// string | number -> string -> number
+// wtf, ts?
+const editNum = parseInt(editId.toString());
+if (isNaN(editNum)) return new Response(null, { status: 404 });
+
+const game = await Game.findOne({ id: editNum });
+if (!game) return new Response(null, { status: 404 });
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+if (game.author !== user.id) return Astro.redirect("/");
+---
+
+<Layout
+	title={`galaxy - editing ${game.name}`}
+	user={{
+		user,
+		loggedIn,
+		needsVerification,
+	}}
+>
+	<main id="main">
+		{
+			game.verified !== true && (
+				<div id="unverified">
+					<b>
+						This game is unverified and will not be playable by
+						anyone else.
+					</b>
+					Please wait patiently for our staff to verify that you made
+					this game. In the meantime, you can add more detail to your
+					game below.
+				</div>
+			)
+		}
+		<div class="flex-centerhoriz">
+			<div id="container">
+				<h1>
+					Editing
+					<a href={`/play/${game.id}`} class="underline masked-link">
+						{game.name}
+					</a>
+				</h1>
+				<a href={`/play/${game.id}`} class="button">back to game</a>
+
+				<GameEditor client:only />
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<style is:global>
+	#main {
+		margin-top: 50px;
+	}
+
+	#unverified {
+		width: calc(100% - 20px);
+		padding: 10px;
+		background: var(--background-red-1);
+	}
+
+	#container {
+		max-width: 500px;
+	}
+
+	input {
+		background: var(--background-2) !important;
+	}
+</style>

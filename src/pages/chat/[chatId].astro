@@ -1,0 +1,18 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import StandaloneChat from "../../components/StandaloneChat.svelte";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+const start = Astro.url.pathname.split("/")[2] || "limbo";
+---
+
+<Layout
+	title="galaxy - chat"
+	showFooter={false}
+	user={{ user, loggedIn, needsVerification }}
+>
+	<main>
+		<StandaloneChat userId={user?.id} channel={start} client:only />
+	</main>
+</Layout>

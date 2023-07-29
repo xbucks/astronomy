@@ -1,0 +1,93 @@
+---
+import CommentList from "../../components/CommentList.svelte";
+import { Game } from "../../models/game";
+import Layout from "../../layouts/Layout.astro";
+import Pagination from "../../components/Pagination.svelte";
+import { paginateComments } from "../../helper/fetchComments";
+
+const { gameId } = Astro.params;
+
+let page = parseInt(Astro.url.searchParams.get("page"));
+if (isNaN(page)) {
+	page = 1;
+}
+
+const sortRaw = Astro.url.searchParams.get("sort");
+let sort: "createdAt" | "score" = "score"; // Default to score
+if (sortRaw === "time") sort = "createdAt";
+else if (sortRaw === "top") sort = "score";
+// Ignore invalid sorts
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+const gameNum = parseInt(gameId.toString());
+if (isNaN(gameNum)) return new Response(null, { status: 404 });
+
+const game = await Game.findOne({ id: gameId });
+if (!game) return new Response(null, { status: 404 });
+
+const { comments, pages } = await paginateComments(
+	gameNum,
+	sort,
+	page,
+	user?.id
+);
+
+const url = Astro.url;
+// TODO this is stupid
+// Prod has an nginx proxy so astro url breaks otherwise
+// I am going to hell for this code
+if (import.meta.env.PROD) {
+	url.host = "galaxy.click";
+	url.port = "443";
+	url.protocol = "https:";
+}
+---
+
+<Layout
+	title={`galaxy - comments for ${game.name}`}
+	user={{ user, loggedIn, needsVerification }}
+>
+	<main id="main">
+		<h1>comments for {game.name}</h1>
+		sort: <select id="sort-select">
+			<option value="top">most votes</option>
+			<option value="time"> most recent</option>
+		</select>
+		<a href={`/play/${game.id}`} class="button">go back</a>
+		<br />
+		<br />
+		<CommentList
+			client:load
+			{comments}
+			userId={user?.id}
+			isDev={user?.id === game.author}
+			isLoggedIn={loggedIn}
+			isStaff={user?.modLevel >= 1}
+		/>
+
+		<Pagination url={url} pages={pages} currentPage={page} />
+	</main>
+</Layout>
+
+<script>
+	(
+		document.getElementById("sort-select") as HTMLSelectElement
+	).addEventListener("change", e => {
+		const newURL = new URL(window.location.href);
+		newURL.searchParams.set("sort", (e.target as HTMLSelectElement).value);
+		window.location.href = newURL.href;
+	});
+
+	if (new URL(window.location.href).searchParams.get("sort") === "time")
+		(document.getElementById("sort-select") as HTMLSelectElement).value =
+			"time";
+</script>
+
+<style>
+	main#main {
+		width: 80vw;
+		max-width: 800px;
+		margin: auto;
+	}
+</style>

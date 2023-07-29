@@ -1,0 +1,512 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import type { IUser } from "../types";
+import VerificationNotice from "../components/VerificationNotice.astro";
+
+export interface Props {
+	title: string;
+	user?: {
+		user?: IUser;
+		loggedIn: boolean;
+		needsVerification: boolean;
+	};
+	showFooter?: boolean;
+	ogp?: {
+		title?: string;
+		description?: string;
+		image?: string;
+		largeImage?: boolean;
+	};
+}
+
+let { title, user, showFooter, ogp } = Astro.props;
+
+if (!user) user = Astro.locals.auth;
+
+let origin = Astro.url.origin;
+// TODO this is stupid
+// Prod has an nginx proxy so astro url breaks otherwise
+if (import.meta.env.PROD) origin = "https://galaxy.click";
+
+let ogpTitle = title;
+let description =
+	"play incremental games and more on galaxy.click, forever for free.";
+let image = origin + "/brand/Color-600px.png";
+let largeImage = false;
+
+if (ogp) {
+	if (ogp.description !== undefined) description = ogp.description;
+	if (ogp.image !== undefined) image = origin + ogp.image;
+	if (ogp.title !== undefined) ogpTitle = ogp.title;
+	if (ogp.largeImage !== undefined) largeImage = ogp.largeImage;
+}
+
+const theme = Astro.cookies.get("theme").value ?? "auto";
+const themeDark =
+	Astro.cookies.get("t-dark").value?.replaceAll(/\W/g, "") ?? "galaxy";
+const themeLight =
+	Astro.cookies.get("t-light").value?.replaceAll(/\W/g, "") ?? "milk";
+let themeCSS = `@import url("/styles/themes/${themeDark}.css");
+@import url("/styles/themes/${themeLight}.css") (prefers-color-scheme: light);`;
+
+if (theme === "dark")
+	themeCSS = `@import url("/styles/themes/${themeDark}.css");`;
+if (theme === "light")
+	themeCSS = `@import url("/styles/themes/${themeLight}.css");`;
+
+themeCSS += `
+
+:root { --accent-hue: ${
+	Astro.cookies.get("t-accent").value ?? Math.random() * 360
+}deg; }`;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/png" href="/brand/favicon.png" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+		/>
+		<meta property="og:title" content={ogpTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image} />
+		<meta property="og:site_name" content="galaxy" />
+		{
+			largeImage && (
+				<meta name="twitter:card" content="summary_large_image" />
+			)
+		}
+		<meta name="theme-color" content="#481148" />
+		<title>{title}</title>
+		<style set:html={themeCSS}></style>
+	</head>
+	<body>
+		<Header user={user} />
+		{
+			user?.needsVerification && Astro.url.pathname !== "/signedup" && (
+				<VerificationNotice />
+			)
+		}
+		<slot />
+		{(showFooter ?? true) && <Footer />}
+	</body>
+</html>
+<style is:global>
+	@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Roboto&family=Noto+Emoji&family=Inter:wght@200;400;600&display=swap");
+
+	:root {
+		--global-padding: max(min(10vw, calc(100vw - 800px)), 12px);
+
+		--header-font: "JetBrains Mono", "Noto Emoji", monospace;
+		--content-font: "Inter", "Noto Emoji", sans-serif;
+	}
+
+	body {
+		margin: 0;
+		background: var(--background-1);
+		color: var(--color-1);
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+
+		font-family: var(--content-font);
+		font-size: 14px;
+
+		touch-action: manipulation;
+	}
+
+	h1,
+	h2,
+	h3 {
+		font-family: var(--header-font);
+		margin-block: 10px;
+	}
+
+	button,
+	a.button,
+	select.button,
+	input[type="submit"] {
+		margin: 2px 2px 0 0;
+		padding: 0 12px;
+		display: inline-block;
+		height: 26px;
+		line-height: 26px;
+		font-family: var(--content-font);
+		font-size: 14px;
+		color: var(--color-0);
+		background: var(--background-3);
+		border: none;
+		box-shadow: 1px 0 5px #0007;
+		text-decoration: none;
+		border-radius: 3px;
+		cursor: pointer;
+	}
+	button:disabled,
+	a.button.disabled {
+		background: var(--background-4);
+		color: var(--color-4);
+		cursor: not-allowed;
+	}
+	button.command::before,
+	a.button.command::before {
+		content: ">\00a0";
+		opacity: 0.5;
+		display: inline-block;
+	}
+	button:hover:not(:disabled),
+	a.button:hover:not(.disabled),
+	input[type="submit"]:hover,
+	button:focus-visible:not(:disabled),
+	a.button:focus-visible:not(.disabled),
+	input[type="submit"]:focus-visible {
+		color: var(--color-active-0);
+		background: var(--background-active-5);
+		text-decoration: 1.25px solid underline;
+		outline: none;
+		transition:
+			background 0.3s,
+			color 0.3s;
+	}
+
+	button.toolbar-button {
+		background: none;
+		box-shadow: none;
+		border-radius: 0;
+	}
+
+	button.icon-button {
+		aspect-ratio: 1;
+		padding: 0;
+	}
+
+	.tag,
+	a.tag,
+	button.tag {
+		border-left: 0.3em solid var(--color-0);
+	}
+
+	.tag.custom,
+	a.tag.custom,
+	button.tag.custom {
+		border-left: 0.3em dashed var(--color-4);
+		--tag-border-bg: linear-gradient(
+				var(--color-active-4),
+				var(--color-active-4)
+			)
+			left / 0.3em 100% no-repeat border-box;
+		background: var(--tag-border-bg), var(--background-3);
+	}
+	.tag.custom:disabled,
+	a.tag.custom:disabled,
+	button.tag.custom:disabled {
+		background: var(--tag-border-bg), var(--background-4);
+	}
+	.tag.custom:hover,
+	a.tag.custom:hover,
+	button.tag.custom:hover {
+		background: var(--tag-border-bg), var(--background-active-5);
+	}
+
+	.tag-slot {
+		margin: 2px 2px 0 0;
+		padding: 0 12px;
+		display: inline-block;
+		height: 26px;
+		min-width: 50px;
+		line-height: 26px;
+		font-family: var(--content-font);
+		font-size: 14px;
+		color: var(--color-0);
+		background: var(--background-1);
+		border: none;
+		box-shadow: inset 1px 0 5px #0007;
+		text-decoration: none;
+		border-radius: 3px;
+		cursor: default;
+		user-select: none;
+	}
+
+	textarea {
+		background: var(--background-2);
+		color: var(--color-1);
+		font-family: var(--content-font);
+		border: none;
+		resize: none;
+		padding: 7px;
+		font-size: 1em;
+		border-radius: 3px;
+	}
+
+	.top-list > input:first-child,
+	#search-input:first-child {
+		margin-top: 0;
+	}
+
+	input:not([type="checkbox"]) {
+		padding: 0 12px;
+		height: 26px;
+		font-size: 14px;
+		font-family: var(--content-font);
+		background: var(--background-1);
+		color: var(--color-0);
+		outline: 1px solid #7770;
+		border-radius: 3px;
+		border: none;
+	}
+
+	.container-title {
+		margin-bottom: 0;
+	}
+	.container {
+		display: block;
+		background: var(--background-2);
+		box-shadow: 0 0 10px black;
+		padding: 8px 20px;
+		border-radius: 8px;
+	}
+
+	.masked-link {
+		color: inherit;
+		text-decoration: none;
+	}
+	.masked-link:hover {
+		color: inherit;
+		text-decoration: 1.25px solid underline;
+	}
+
+	.fake-link,
+	a {
+		color: var(--color-2);
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	button.fake-link {
+		background: transparent;
+		margin: 0;
+		padding: 0;
+		height: unset;
+		line-height: unset;
+		box-shadow: none;
+		display: inline;
+	}
+	button.fake-link:hover {
+		background: transparent;
+		color: var(--color-2);
+	}
+
+	.pointer {
+		cursor: pointer;
+	}
+
+	.unimportant {
+		color: #888;
+	}
+
+	.small {
+		font-size: 12px;
+	}
+
+	.padright {
+		margin-right: 5px;
+	}
+
+	.flex-centerhoriz {
+		display: flex;
+		justify-content: center;
+	}
+
+	.flex-centervert {
+		display: flex;
+		align-items: center;
+	}
+
+	.floatright {
+		float: right;
+	}
+
+	.nomargin {
+		margin: 0;
+	}
+
+	.compact {
+		font-size: 0;
+	}
+	.compact > * {
+		font-size: 14px;
+	}
+
+	img {
+		font-size: 0;
+	}
+
+	img.inline {
+		vertical-align: -15%;
+	}
+
+	img.profile-pic {
+		aspect-ratio: 1;
+	}
+
+	:is(button, a.button) > img.inline:first-child {
+		width: 26px;
+		height: 26px;
+		vertical-align: -7px;
+		margin: 0 12px 0 -12px;
+		border-radius: 3px 0 0 3px;
+	}
+
+	button > svg {
+		transform: translateY(2px);
+	}
+
+	/* Alert styles */
+
+	.alert {
+		position: fixed;
+		top: 50px;
+		padding: 15px 20px;
+
+		border-radius: 30px;
+
+		left: 50%;
+		transform: translateX(-50%);
+
+		background: var(--background-1);
+		color: var(--color-1);
+
+		box-shadow: 0 2px 10px #0007;
+
+		z-index: 10;
+	}
+
+	.alert-red {
+		background: var(--background-red-0);
+		color: var(--color-0);
+	}
+
+	.alert-blue {
+		background: var(--background-blue-0);
+		color: var(--color-0);
+	}
+
+	.alert-green {
+		background: var(--background-green-0);
+		color: var(--color-0);
+	}
+
+	.alert-close {
+		cursor: pointer;
+		float: right;
+		text-decoration: underline;
+		margin-left: 12px;
+	}
+
+	/* Flairs */
+
+	.flair[data-flair="tester"] {
+		color: var(--flair-tester-fg);
+		background: var(--flair-tester-bg);
+	}
+	.flair[data-flair="gamedev"] {
+		color: var(--flair-gamedev-fg);
+		background: var(--flair-gamedev-bg);
+	}
+	.flair[data-flair="vip"] {
+		color: var(--flair-vip-fg);
+		background: var(--flair-vip-bg);
+	}
+	.flair[data-flair="contributor"] {
+		color: var(--flair-contributor-fg);
+		background: var(--flair-contributor-bg);
+	}
+	.flair[data-flair="donator"] {
+		color: var(--flair-donator-fg);
+		background: var(--flair-donator-bg);
+	}
+	.flair[data-flair="owner"] {
+		color: var(--flair-owner-fg);
+		background: var(--flair-owner-bg);
+	}
+	.flair[data-flair="admin"] {
+		color: var(--flair-admin-fg);
+		background: var(--flair-admin-bg);
+	}
+	.flair[data-flair="mod"] {
+		color: var(--flair-mod-fg);
+		background: var(--flair-mod-bg);
+	}
+	.flair[data-flair="suggester"] {
+		color: var(--flair-suggester-fg);
+		background: var(--flair-suggester-bg);
+	}
+
+	/* Reporting */
+	.report-container {
+		position: fixed;
+		background: var(--background-2);
+		color: var(--color-1);
+		transform: translateY(-50%);
+		border-radius: 25px;
+		box-shadow: 0 0 15px #00000088;
+		top: 50%;
+		border: none;
+	}
+
+	.report-container::backdrop {
+		background: #00000088;
+	}
+
+	.report-window {
+		height: 180px;
+		width: 700px;
+		padding: 20px;
+	}
+
+	.report-window input {
+		width: 690px;
+	}
+
+	.report-window button {
+		width: 200px;
+		margin: 5px;
+		margin-top: 15px;
+	}
+
+	.report-window button:first-of-type {
+		margin-left: 140px;
+	}
+
+	/* Site interface */
+
+	#main {
+		margin: auto var(--global-padding);
+	}
+
+	header {
+		overflow-x: clip;
+	}
+
+	/* Screen Readers */
+	.screenreader {
+		position: absolute !important; /* Outside the DOM flow */
+		height: 1px;
+		width: 1px; /* Nearly collapsed */
+		overflow: hidden;
+		clip: rect(
+			1px 1px 1px 1px
+		); /* IE 7+ only support clip without commas */
+		clip: rect(1px, 1px, 1px, 1px); /* All other browsers */
+		top: 0;
+		left: 0;
+	}
+
+	pre {
+		width: 100%;
+		overflow: auto;
+	}
+</style>

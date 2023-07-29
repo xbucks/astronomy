@@ -1,0 +1,55 @@
+---
+import ErrorResponse from "../components/ErrorResponse.astro";
+import { Game } from "../models/game";
+import GameRow from "../components/GameRow.svelte";
+import Layout from "../layouts/Layout.astro";
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+const games = await Game.find({ author: user?.id });
+
+if (!loggedIn) Astro.response.status = 401;
+---
+
+<Layout
+	title="galaxy - your games"
+	user={{ user, loggedIn, needsVerification }}
+>
+	<main id="main" class="flex-centerhoriz">
+		{
+			loggedIn ? (
+				<div>
+					<h1>your games</h1>
+
+					<p>
+						Click on a game to edit it. Or, you can
+						<a href="/publish">publish a new game.</a>
+					</p>
+					<hr />
+					<div>
+						{games.map(game => (
+							<GameRow game={game} path="edit" />
+						))}
+					</div>
+				</div>
+			) : (
+				<ErrorResponse status={401} title={["what?"]}>
+					<p>
+						{needsVerification ? (
+							<>
+								Your account needs to be verified before you can
+								manage your games.
+								<br />
+								<a href="/signedup" class="button">
+									verify email
+								</a>
+							</>
+						) : (
+							"You need an account to manage your games."
+						)}
+					</p>
+				</ErrorResponse>
+			)
+		}
+	</main>
+</Layout>

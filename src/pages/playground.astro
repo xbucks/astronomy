@@ -1,0 +1,24 @@
+---
+import Playground from "../components/Playground.svelte";
+---
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>The Playground</title>
+
+		<style>
+			body {
+				color: #bbb;
+				background: #333;
+				margin: 0;
+				min-height: calc(100vh - 20px);
+				font-family: "JetBrains Mono";
+			}
+		</style>
+	</head>
+	<body>
+		<Playground client:only />
+	</body>
+</html>

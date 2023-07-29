@@ -1,0 +1,51 @@
+---
+import { Cluster } from "../components/Cluster/cluster";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>galaxy - cluster</title>
+	</head>
+	<body>
+		<main>
+			<noscript>Galaxy requires JavaScript. Sorry. :(</noscript>
+			<Cluster client:only="react" />
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	html,
+	body,
+	main,
+	#main {
+		margin: 0;
+		background: var(--background-1);
+		color: var(--color-1);
+		width: 100vw;
+		height: 100vh;
+	}
+
+	.big {
+		width: 100%;
+		height: 100%;
+	}
+
+	.navbar {
+		height: 20px;
+		border-bottom: solid 1px var(--background-3);
+		/* TODO import inter, or use another font */
+		font-family: Inter, sans-serif;
+		user-select: none;
+	}
+</style>
+<script>
+	alert(
+		"Cluster is a work in progress. Cloud saving won't work, and you can't chat. Consider this a pre-alpha for now!"
+	);
+</script>

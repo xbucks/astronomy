@@ -1,0 +1,94 @@
+---
+export interface Props {
+	gradient: [string, string] | [number, number];
+	title: string;
+	index: number;
+}
+
+let { gradient, title, index } = Astro.props;
+if (typeof gradient[0] === "number")
+	gradient = gradient.map(c => `hsla(${c}, 50%, 50%, .5)`) as [
+		string,
+		string,
+	];
+---
+
+<div
+	class={`blurb ${index <= 0 && "first-blurb"}`}
+	style={`--background: linear-gradient(${gradient.join(
+		","
+	)}); --index:${index}`}
+>
+	<div>
+		<h1>{title}</h1>
+		<slot />
+	</div>
+</div>
+
+<style>
+	.blurb {
+		min-height: 350px;
+		border-bottom-left-radius: 50% 20%;
+		border-bottom-right-radius: 50% 20%;
+
+		position: relative;
+		display: flex;
+		place-content: center;
+		background: transparent;
+		margin-top: -80px;
+		padding-top: 100px;
+		padding-bottom: 80px;
+	}
+
+	.blurb > div {
+		width: 90vw;
+		margin: auto;
+		padding: 0 calc(var(--global-padding) * 2);
+	}
+
+	.blurb h1 {
+		font-size: 75px;
+	}
+
+	.first-blurb {
+		margin-top: 0px;
+		padding-top: 80px;
+	}
+
+	.blurb::before {
+		content: "";
+		position: absolute;
+		z-index: calc(-2 - var(--index) * 2);
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: var(--background);
+
+		border-bottom-left-radius: 50% 80px;
+		border-bottom-right-radius: 50% 80px;
+	}
+	.blurb:not(.first-blurb)::after {
+		content: "";
+		position: absolute;
+		z-index: calc(-1 - var(--index) * 2);
+		top: 0;
+		height: 82px;
+		left: 0;
+		right: 0;
+		background: var(--background-1);
+
+		border-bottom-left-radius: 50% 80px;
+		border-bottom-right-radius: 50% 80px;
+	}
+
+	.blurb p {
+		font-size: 16px;
+	}
+
+	@media screen and (max-width: 500px) {
+		.blurb h1 {
+			font-size: 45px;
+		}
+	}
+</style>

@@ -1,0 +1,21 @@
+---
+import Inbox from "../components/Inbox.svelte";
+import Layout from "../layouts/Layout.astro";
+
+const user = Astro.locals.auth;
+---
+
+<Layout title="galaxy - your inbox" showFooter={false} user={user}>
+	{
+		user.loggedIn ? (
+			<main>
+				<Inbox client:only />
+			</main>
+		) : (
+			<main id="main">
+				<h1>damn.</h1>
+				<p>you need to be logged in to access your inbox.</p>
+			</main>
+		)
+	}
+</Layout>

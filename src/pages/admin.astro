@@ -1,0 +1,41 @@
+---
+import AdminPanel from "../components/AdminPanel.svelte";
+import ErrorResponse from "../components/ErrorResponse.astro";
+import Layout from "../layouts/Layout.astro";
+
+const { user, loggedIn } = Astro.locals.auth;
+
+let err = false;
+if (!loggedIn || user.modLevel === 0 || user.modLevel === undefined) err = true;
+---
+
+<Layout title="galaxy - admin panel" showFooter={false}>
+	{
+		err ? (
+			<main id="main">
+				<ErrorResponse
+					status={401}
+					title={[
+						"nice try",
+						"shh, it's a secret",
+						"c'mon, really?",
+						"this isn't the page you're looking for",
+						"identity theft is not a joke",
+						"how did you get here anyways",
+						"access denied",
+						"unauthorized",
+						`${user?.name} is not in the sudoers file`,
+						`[sudo] password for ${user?.name}: | Sorry, try again.`,
+					]}
+				>
+					You don't have sufficient permissions to be here. Sorry.
+					<br />
+				</ErrorResponse>
+			</main>
+		) : (
+			<main>
+				<AdminPanel client:only />
+			</main>
+		)
+	}
+</Layout>

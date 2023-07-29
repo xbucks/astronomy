@@ -1,0 +1,51 @@
+---
+import Layout from "../layouts/Layout.astro";
+import UserManager from "../components/UserManager.svelte";
+import { astroCookiesToUser } from "../helper/auth";
+
+// TODO maybe dont keep secrets
+const { user, loggedIn, needsVerification } = await astroCookiesToUser(
+	Astro.cookies,
+	true
+);
+if (!loggedIn && !needsVerification) return Astro.redirect("/");
+---
+
+<Layout
+	title="galaxy - preferences"
+	user={{ user, loggedIn, needsVerification }}
+>
+	<main id="main" class="flex-centerhoriz">
+		<div id="main" v-if="user">
+			<h1>hello, {user.name}!</h1>
+			{
+				user.emailVerified === true ? (
+					<div id="mgr">
+						<UserManager client:only />
+					</div>
+				) : (
+					<p>
+						to change your account details, please verify your email
+						first.
+					</p>
+				)
+			}
+		</div>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin-top: 50px;
+	}
+
+	#mgr {
+		max-width: 500px;
+	}
+
+	.game-name {
+		font-size: 25px;
+		margin-top: 25px;
+		margin-bottom: 25px;
+	}
+</style>

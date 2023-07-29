@@ -1,0 +1,349 @@
+---
+import { getLevel, getXP } from "../../helper/leveling";
+import DetailedGameCard from "../../components/DetailedGameCard.svelte";
+import { Game } from "../../models/game";
+import GenericGameList from "../../components/GenericGameList.svelte";
+import Icon from "@iconify/svelte";
+import Layout from "../../layouts/Layout.astro";
+import Pfp from "../../components/Pfp.svelte";
+import { User } from "../../models/user";
+import UserDropdownWidget from "../../components/UserDropdownWidget.svelte";
+import { convertFormat } from "../../libgalaxy";
+import formatPlaytime from "../../helper/formatPlaytime";
+import { userBio as md } from "../../helper/markdown";
+
+const { userId } = Astro.params;
+
+// string | number -> string -> number
+// wtf, ts?
+const userNum = parseInt(userId.toString());
+if (isNaN(userNum))
+	return new Response(null, { status: 404, statusText: "who's that?" });
+
+const maybeLooky = await User.findOne({ id: userNum }).lean();
+if (!maybeLooky)
+	return new Response(null, { status: 404, statusText: "who's that?" });
+
+const looky = maybeLooky;
+const games = await Game.find({ author: looky.id, verified: true })
+	.sort({
+		createdAt: -1,
+	})
+	.lean();
+
+const { user, loggedIn, needsVerification } = Astro.locals.auth;
+
+const xp = getXP(looky);
+const level = getLevel(xp);
+---
+
+<Layout
+	title={`galaxy - @${looky.name}`}
+	user={{ user, loggedIn, needsVerification }}
+	ogp={{
+		title:
+			looky.equippedFlair === "none"
+				? looky.name
+				: `${looky.name} [${looky.equippedFlair}]`,
+		description: looky.bio,
+		image: convertFormat("/pfp/large/", looky.id, looky.pfpTimestamp),
+	}}
+>
+	<main id="main">
+		<div>
+			<div id="mobile-profile-pic">
+				<a
+					href={convertFormat(
+						"/pfp/large/",
+						userNum,
+						looky.pfpTimestamp
+					)}
+				>
+					<Pfp
+						size="large"
+						inline
+						userId={userNum}
+						pfpTimestamp={looky.pfpTimestamp}
+					/>
+				</a>
+			</div>
+			<div class="user-cred">
+				{
+					looky.equippedFlair !== "none" && (
+						<span class="flair" data-flair={looky.equippedFlair}>
+							{looky.equippedFlair}
+						</span>
+					)
+				}
+				<p id="big-username">{looky.name}</p>
+			</div>
+			<div id="user-info" class="container">
+				<a
+					id="big-profile-pic"
+					href={convertFormat(
+						"/pfp/large/",
+						userNum,
+						looky.pfpTimestamp
+					)}
+				>
+					<Pfp
+						size="large"
+						userId={userNum}
+						pfpTimestamp={looky.pfpTimestamp}
+					/>
+				</a>
+
+				{
+					looky.id != -1 ? (
+						<>
+							<div id="user-summary">
+								<table>
+									<tbody>
+										<tr>
+											<td>
+												<h1>level</h1>
+											</td>
+											<td>
+												<h1>total playtime</h1>
+											</td>
+											<td>
+												<h1>&nbsp;</h1>
+											</td>
+										</tr>
+										<tr>
+											<td rowspan="2">
+												<span class="level">
+													{level.toFixed(0)}
+												</span>
+											</td>
+											<td>
+												<span class="stat">
+													<Icon
+														icon="material-symbols:timer"
+														inline
+														client:idle
+													/>
+													{formatPlaytime(
+														looky.playMinutes
+													)}
+												</span>
+											</td>
+											<td />
+										</tr>
+										<tr>
+											<td colspan="10">
+												{looky.id == user?.id ? (
+													<>
+														<a
+															class="button"
+															href="/you"
+														>
+															edit profile
+														</a>
+														<a
+															class="button"
+															href="/manage"
+														>
+															manage games
+														</a>
+													</>
+												) : (
+													loggedIn && (
+														<a
+															class="button"
+															href={`/inbox?to=${looky.name}`}
+														>
+															direct message
+														</a>
+													)
+												)}
+												<span class="floatright">
+													<UserDropdownWidget
+														user={looky}
+														current={user}
+														client:only
+													/>
+												</span>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<span id="user-details">
+								<div>
+									<h2>bio</h2>
+									<hr />
+									<div
+										id="bio-text"
+										set:html={md.render(looky.bio)}
+									/>
+								</div>
+							</span>
+						</>
+					) : (
+						<>
+							<div id="user-summary">
+								<table>
+									<tbody>
+										<tr>
+											<td colspan="10">
+												<span class="floatright">
+													<UserDropdownWidget
+														user={looky}
+														current={user}
+														client:only
+													/>
+												</span>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<span id="user-details">
+								<div style="text-align: center;">
+									<div set:html={md.render(looky.bio)} />
+								</div>
+							</span>
+						</>
+					)
+				}
+			</div>
+			<div>
+				{
+					games.length > 0 && (
+						<GenericGameList
+							mode="cards"
+							title="published games"
+							games={games}
+							client:idle
+						/>
+					)
+				}
+			</div>
+		</div>
+	</main>
+</Layout>
+<DetailedGameCard client:load />
+
+<style>
+	.user-cred {
+		margin: 200px 0 15px 300px;
+	}
+
+	#big-username {
+		font-size: 50px;
+		margin: 0;
+	}
+
+	#user-info {
+		position: relative;
+	}
+
+	#user-info table {
+		padding-bottom: 6px;
+		width: 100%;
+		border-spacing: 0;
+		white-space: nowrap;
+		gap: 0;
+	}
+	#user-info table td {
+		padding-right: 20px;
+	}
+	#user-info table td:last-child {
+		width: 100%;
+		padding-right: 0px;
+	}
+	#user-info table h1,
+	#user-info div h1 {
+		padding: 2px 0;
+		font-weight: normal;
+		font-size: 12px;
+		margin-block: 0;
+		color: var(--color-4);
+	}
+
+	#user-summary {
+		padding-left: 280px;
+		min-height: 100px;
+	}
+	#user-summary td {
+		vertical-align: top;
+	}
+	#user-summary .level {
+		font-size: 64px;
+		font-weight: bold;
+		height: 0px;
+		display: inline-block;
+		padding-right: 25px;
+		transform: translateY(-7px);
+	}
+	#user-summary .stat {
+		font-size: 24px;
+		font-weight: bold;
+		display: inline-block;
+		vertical-align: -4px;
+	}
+
+	#user-details {
+		display: flex;
+		margin-bottom: 12px;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+	#user-details > div {
+		flex: 1 0 min(450px, 100%);
+	}
+	#user-details > div > h2:first-child {
+		margin-bottom: 0;
+	}
+	#bio-text {
+		word-break: break-word;
+	}
+
+	#big-profile-pic {
+		position: absolute;
+		left: 20px;
+		top: -155px;
+		filter: drop-shadow(1px 0 5px #0007);
+	}
+
+	#mobile-profile-pic {
+		display: none;
+		filter: drop-shadow(1px 0 5px #0007);
+	}
+
+	.flair {
+		display: inline-block;
+		height: 26px;
+		line-height: 26px;
+		border-radius: 3px;
+		padding: 0 8px;
+	}
+
+	@media screen and (max-width: 725px) {
+		#big-profile-pic {
+			display: none;
+		}
+
+		#user-summary {
+			padding-left: 0;
+		}
+
+		#mobile-profile-pic {
+			display: block;
+			margin-top: 25px;
+			text-align: center;
+		}
+
+		.user-cred {
+			display: inline-block;
+			margin: 8px 0 8px 16px;
+		}
+
+		#big-username {
+			font-size: 32px;
+		}
+	}
+</style>

@@ -1,0 +1,98 @@
+---
+import Icon from "@iconify/svelte";
+import Signature from "./Signature.svelte";
+import { shortHash } from "../helper/currentRev";
+---
+
+<footer id="bottom">
+	<Signature />
+	<div class="links">
+		<div>
+			made with
+			<span aria-label="love">
+				<Icon icon="material-symbols:favorite" inline client:idle />
+			</span>
+			by
+			<a href="https://yhvr.me/" class="masked-link">yhvr</a> &
+			<a href="https://gitlab.com/yhvr/galaxy-astro" class="masked-link"
+				>contributors
+			</a>
+			{
+				shortHash != null && (
+					<span class="unimportant">(rev {shortHash})</span>
+				)
+			}
+			<br />
+			<a href="/about">about</a> &bull;
+			<a href="/rules">site rules</a> &bull;
+			<a href="/terms">terms of service</a> &bull;
+			<a href="/privacy">privacy policy</a> &bull;
+			<a href="/cookies">cookie policy</a>
+			{
+				Math.random() >= 0.99 && (
+					<>
+						&bull;
+						<a href="/pogger">pogger button</a>
+					</>
+				)
+			}
+		</div>
+		<div class="helpline">
+			if galaxy is having a negative impact on your life, please seek help
+			<br />
+			<a href="https://www.samhsa.gov/">SAMHSA</a> (1-800-662-HELP) &bull;
+			<a href="https://reddit.com/r/StopGaming">r/StopGaming</a>
+		</div>
+	</div>
+</footer>
+
+<style>
+	#bottom {
+		padding: 20px var(--global-padding);
+
+		/* background: linear-gradient(var(--background-1), var(--background-2)); */
+		/* background: var(--background-2); */
+		color: var(--color-2);
+		cursor: default;
+		font-size: 12px;
+	}
+
+	.links {
+		margin-top: 0.3em;
+		display: flex;
+		flex-direction: row;
+	}
+	.links > div {
+		flex-grow: 1;
+	}
+	.helpline {
+		text-align: right;
+	}
+
+	@media screen and (max-width: 720px) {
+		.links {
+			margin-top: 0.5em;
+			flex-direction: column;
+			gap: 0.4em;
+		}
+		.helpline {
+			text-align: left;
+		}
+	}
+
+	@media screen and (hover: none), (max-width: 720px) {
+		#bottom {
+			bottom: -200px;
+		}
+		:global(header:is(.mobile-menu, .mobile-profile)) ~ #bottom {
+			position: fixed;
+			background: linear-gradient(transparent, var(--background-1))
+				border-box;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: 100;
+			transition: bottom 0.5s;
+		}
+	}
+</style>

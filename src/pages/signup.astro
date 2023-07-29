@@ -1,0 +1,146 @@
+---
+import Form from "../components/Form.astro";
+import Layout from "../layouts/Layout.astro";
+import { env } from "../helper/env";
+
+if (Astro.cookies.has("token")) return Astro.redirect("/");
+---
+
+<Layout title="galaxy - sign up">
+	<main id="main">
+		<div id="signup" data-action="/api/users/signup">
+			<h1>welcome to galaxy</h1>
+			<!-- TODO more client side form validation stuff -->
+			<Form>
+				<div>
+					<p>
+						A Galaxy account lets you publish games, give feedback,
+						chat with people, and more.
+						<br />
+						<b
+							>Use a strong password. Consider using a password
+							manager.</b
+						>
+					</p>
+				</div>
+				<div data-label="username">
+					<input
+						type="text"
+						name="name"
+						placeholder="(required)"
+						pattern="[a-zA-Z0-9_\-]{3,28}"
+						required
+					/>
+				</div>
+				<div data-label="email">
+					<input
+						accept=""
+						type="email"
+						name="email"
+						placeholder="(required)"
+						required
+					/>
+				</div>
+				<div data-label="password">
+					<input
+						type="password"
+						name="password"
+						placeholder="(required)"
+						id="password"
+						required
+					/>
+				</div>
+				<div data-label="retype password">
+					<input
+						type="password"
+						name="retype-password"
+						placeholder="(required)"
+						id="retype-password"
+						required
+					/>
+				</div>
+				<hr />
+				<div data-label="legal">
+					<input type="checkbox" id="compliance" />
+					<label for="compliance">
+						I agree to the <a href="/terms"> Terms of Service</a>,
+						<a href="/privacy">Privacy Policy</a>, and
+						<a href="/rules"> Acceptable Use Policy</a>
+					</label>
+				</div>
+				<hr />
+				<div data-label="humanity check" id="captcha">
+					<div
+						class="cf-turnstile"
+						data-sitekey={env.TURNSTILE_SITEKEY}
+						data-callback="captchaDone"
+					>
+					</div>
+					<input
+						name="captcha"
+						style="display: none"
+						aria-hidden="true"
+					/>
+				</div>
+				<hr />
+				<div data-label="let's go">
+					<button id="enter-button" type="submit" role="button"
+						>create account</button
+					>
+				</div>
+				<div data-label="">
+					<p class="unimportant">
+						To create an account, you must be at least 13 years old
+						(or older depending on certain jurisdictions).
+						<br />
+						Do not use a throwaway email. If you are found using one,
+						you will be banned.
+					</p>
+				</div>
+			</Form>
+		</div>
+	</main>
+</Layout>
+<style>
+	#captcha::before {
+		margin: auto 0;
+	}
+</style>
+<script>
+	import { alert, form } from "../libgalaxy";
+
+	form(
+		"signup",
+		["name", "email", "password", "captcha"],
+		res => {
+			if (res.name) {
+				alert.success("Account created!");
+				window.location.href = "/signedup";
+			}
+		},
+		false,
+		() => {
+			if (
+				// @ts-ignore
+				document.getElementById("password").value !==
+				// @ts-ignore
+				document.getElementById("retype-password").value
+			)
+				return "Passwords do not match";
+			if (
+				// @ts-ignore
+				!document.getElementById("compliance").checked
+			)
+				return "Please read and agree to the Terms of Service, Privacy Policy, and Acceptable Use Policy";
+			return true;
+		}
+	);
+
+	// @ts-ignore
+	window.captchaDone = (token: string) => {
+		// @ts-ignore
+		document.querySelector("[name='captcha']").value = token;
+	};
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer
+></script>
